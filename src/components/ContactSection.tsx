@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Send, MessageCircle, Mail, MapPin } from "lucide-react";
+import { Send, MessageCircle, Mail, MapPin, Phone } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -102,8 +102,20 @@ const ContactSection = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Email</p>
-                  <a href="mailto:hello@developer.com" className="font-medium hover:text-primary transition-colors">
-                    hello@developer.com
+                  <a href="mailto:suhailqureshi0828@gmail.com" className="font-medium hover:text-primary transition-colors">
+                    suhailqureshi0828@gmail.com
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Phone className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Phone</p>
+                  <a href="tel:+917500669672" className="font-medium hover:text-primary transition-colors">
+                    +91 7500669672
                   </a>
                 </div>
               </div>
@@ -114,8 +126,8 @@ const ContactSection = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">WhatsApp</p>
-                  <a href="https://wa.me/1234567890" className="font-medium hover:text-primary transition-colors">
-                    +1 234 567 890
+                  <a href="https://wa.me/917500669672" className="font-medium hover:text-primary transition-colors">
+                    +91 7500669672
                   </a>
                 </div>
               </div>
@@ -126,20 +138,20 @@ const ContactSection = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Location</p>
-                  <p className="font-medium">Available Worldwide (Remote)</p>
+                  <p className="font-medium">Saharanpur, Uttar Pradesh, India</p>
                 </div>
               </div>
             </div>
 
             <div className="flex gap-4 pt-4">
               <Button variant="gradient" size="lg" asChild>
-                <a href="https://wa.me/1234567890" target="_blank" rel="noopener noreferrer">
+                <a href="https://wa.me/917500669672" target="_blank" rel="noopener noreferrer">
                   <MessageCircle size={18} className="mr-2" />
                   WhatsApp Me
                 </a>
               </Button>
               <Button variant="outline" size="lg" asChild>
-                <a href="mailto:hello@developer.com">
+                <a href="mailto:suhailqureshi0828@gmail.com">
                   <Mail size={18} className="mr-2" />
                   Email Me
                 </a>
