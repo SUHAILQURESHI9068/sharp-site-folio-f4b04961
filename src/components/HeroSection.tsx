@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Download } from "lucide-react";
 import { Button } from "./ui/button";
+import { TypeAnimation } from "react-type-animation";
 import heroBg from "@/assets/hero-bg.jpg";
 import laptopHero from "@/assets/laptop-hero.png";
 
@@ -40,7 +41,25 @@ const HeroSection = () => {
             >
               I Build{" "}
               <span className="gradient-text">Modern, Fast</span>
-              <br />& High-Converting Websites
+              <br />
+              <TypeAnimation
+                sequence={[
+                  "& High-Converting Websites",
+                  2000,
+                  "& E-commerce Stores",
+                  2000,
+                  "& Landing Pages",
+                  2000,
+                  "& Web Applications",
+                  2000,
+                  "& Digital Experiences",
+                  2000,
+                ]}
+                wrapper="span"
+                speed={50}
+                repeat={Infinity}
+                className="text-foreground"
+              />
             </motion.h1>
 
             <motion.p

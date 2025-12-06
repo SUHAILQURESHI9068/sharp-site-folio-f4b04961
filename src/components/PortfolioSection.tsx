@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ExternalLink, X } from "lucide-react";
 import { Button } from "./ui/button";
 
+const categories = ["All", "Website", "E-commerce", "Web App", "Landing Page"];
+
 const projects = [
   {
     id: 1,
@@ -52,10 +54,31 @@ const projects = [
     image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&h=400&fit=crop",
     technologies: ["React", "GSAP", "Tailwind"],
   },
+  {
+    id: 7,
+    title: "Crypto Exchange",
+    category: "Web App",
+    description: "Cryptocurrency trading platform with real-time charts and secure wallet integration.",
+    image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=600&h=400&fit=crop",
+    technologies: ["React", "Web3", "Node.js"],
+  },
+  {
+    id: 8,
+    title: "Product Launch Landing",
+    category: "Landing Page",
+    description: "Conversion-optimized landing page for a product launch with countdown and email capture.",
+    image: "https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=600&h=400&fit=crop",
+    technologies: ["React", "Tailwind", "Mailchimp"],
+  },
 ];
 
 const PortfolioSection = () => {
   const [selectedProject, setSelectedProject] = useState<typeof projects[0] | null>(null);
+  const [activeFilter, setActiveFilter] = useState("All");
+
+  const filteredProjects = activeFilter === "All" 
+    ? projects 
+    : projects.filter(p => p.category === activeFilter);
 
   return (
     <section id="portfolio" className="section-padding relative">
@@ -67,7 +90,7 @@ const PortfolioSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-12"
         >
           <span className="text-primary font-medium mb-4 block">My Work</span>
           <h2 className="text-3xl md:text-5xl font-bold mb-4">
@@ -78,46 +101,80 @@ const PortfolioSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, index) => (
-            <motion.div
-              key={project.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="glass-card overflow-hidden group cursor-pointer"
-              onClick={() => setSelectedProject(project)}
+        {/* Filter Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="flex flex-wrap justify-center gap-3 mb-12"
+        >
+          {categories.map((category) => (
+            <motion.button
+              key={category}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setActiveFilter(category)}
+              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                activeFilter === category
+                  ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/25"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+              }`}
             >
-              <div className="relative overflow-hidden">
-                <img
-                  src={project.image}
-                  alt={project.title}
-                  className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <span className="text-sm font-medium text-foreground">View Project</span>
-                </div>
-              </div>
-              <div className="p-6">
-                <span className="text-xs text-primary font-medium">{project.category}</span>
-                <h3 className="text-lg font-bold mt-2 group-hover:text-primary transition-colors">
-                  {project.title}
-                </h3>
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {project.technologies.map((tech) => (
-                    <span
-                      key={tech}
-                      className="text-xs px-2 py-1 bg-muted rounded-md text-muted-foreground"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
+              {category}
+            </motion.button>
           ))}
-        </div>
+        </motion.div>
+
+        {/* Projects Grid */}
+        <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <AnimatePresence mode="popLayout">
+            {filteredProjects.map((project, index) => (
+              <motion.div
+                key={project.id}
+                layout
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.4, delay: index * 0.05 }}
+                className="glass-card overflow-hidden group cursor-pointer"
+                onClick={() => setSelectedProject(project)}
+              >
+                <div className="relative overflow-hidden">
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                    <span className="text-sm font-medium text-foreground">View Project</span>
+                  </div>
+                  {/* Category Badge */}
+                  <div className="absolute top-3 left-3">
+                    <span className="px-2 py-1 bg-primary/90 text-primary-foreground text-xs font-medium rounded-md">
+                      {project.category}
+                    </span>
+                  </div>
+                </div>
+                <div className="p-5">
+                  <h3 className="text-lg font-bold group-hover:text-primary transition-colors">
+                    {project.title}
+                  </h3>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {project.technologies.slice(0, 3).map((tech) => (
+                      <span
+                        key={tech}
+                        className="text-xs px-2 py-1 bg-muted rounded-md text-muted-foreground"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
 
         {/* Project Modal */}
         <AnimatePresence>
