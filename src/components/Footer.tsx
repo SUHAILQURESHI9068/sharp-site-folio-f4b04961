@@ -1,4 +1,4 @@
-import { Github, Linkedin, Twitter, Instagram } from "lucide-react";
+import { Github, Linkedin, Twitter, Instagram, Mail, MapPin, Phone } from "lucide-react";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -22,16 +22,29 @@ const Footer = () => {
   return (
     <footer className="border-t border-border/50 py-12">
       <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-3 gap-8 mb-8">
-          <div>
+        <div className="grid md:grid-cols-4 gap-8 mb-8">
+          <div className="md:col-span-2">
             <a href="#home" className="text-2xl font-bold mb-4 block">
-              <span className="text-foreground">dev</span>
-              <span className="gradient-text">.portfolio</span>
+              <span className="gradient-text">Morzen</span>
             </a>
-            <p className="text-muted-foreground text-sm leading-relaxed">
+            <p className="text-muted-foreground text-sm leading-relaxed mb-4">
               Professional web developer creating modern, fast, and high-converting 
               websites that help businesses grow online.
             </p>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <MapPin size={14} className="text-primary" />
+                <span>Saharanpur, Uttar Pradesh, India</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Phone size={14} className="text-primary" />
+                <a href="tel:+917500669672" className="hover:text-primary transition-colors">+91 7500669672</a>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail size={14} className="text-primary" />
+                <a href="mailto:suhailqureshi0828@gmail.com" className="hover:text-primary transition-colors">suhailqureshi0828@gmail.com</a>
+              </div>
+            </div>
           </div>
 
           <div>
@@ -69,7 +82,7 @@ const Footer = () => {
 
         <div className="border-t border-border/50 pt-8 text-center">
           <p className="text-muted-foreground text-sm">
-            © {currentYear} dev.portfolio. All rights reserved.
+            © {currentYear} Morzen. All rights reserved.
           </p>
         </div>
       </div>

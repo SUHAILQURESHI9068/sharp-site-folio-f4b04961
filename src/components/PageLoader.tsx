@@ -37,8 +37,7 @@ const PageLoader = () => {
             className="mb-8"
           >
             <span className="text-4xl md:text-5xl font-bold">
-              <span className="text-foreground">dev</span>
-              <span className="gradient-text">.portfolio</span>
+              <span className="gradient-text">Morzen</span>
             </span>
           </motion.div>
 

@@ -20,8 +20,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
           <a href="#home" className="text-xl md:text-2xl font-bold">
-            <span className="text-foreground">dev</span>
-            <span className="gradient-text">.portfolio</span>
+            <span className="gradient-text">Morzen</span>
           </a>
 
           {/* Desktop Navigation */}
