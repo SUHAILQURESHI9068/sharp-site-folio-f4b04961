@@ -78,13 +78,17 @@ const HeroSection = () => {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
             >
-              <Button size="xl" className="group">
-                Hire Me
-                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+              <Button size="xl" className="group" asChild>
+                <a href="#contact">
+                  Hire Me
+                  <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+                </a>
               </Button>
-              <Button variant="outline" size="xl">
-                <Download className="mr-2" />
-                View Work
+              <Button variant="outline" size="xl" asChild>
+                <a href="/resume.pdf" download="Morzen_Resume.pdf">
+                  <Download className="mr-2" />
+                  Download CV
+                </a>
               </Button>
             </motion.div>
 

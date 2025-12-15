@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Code, Palette, Globe, Zap, Layers, Search } from "lucide-react";
+import { Code, Palette, Globe, Zap, Layers, Search, Download } from "lucide-react";
+import { Button } from "./ui/button";
 import developerPortrait from "@/assets/developer-portrait.jpg";
 
 const skills = [
@@ -99,6 +100,13 @@ const AboutSection = () => {
               that not only look amazing but also perform exceptionally. I believe in 
               continuous learning and staying updated with the latest technologies.
             </p>
+
+            <Button size="lg" className="mb-6" asChild>
+              <a href="/resume.pdf" download="Morzen_Resume.pdf">
+                <Download className="mr-2 w-4 h-4" />
+                Download Resume
+              </a>
+            </Button>
             
             <h4 className="text-lg font-bold mb-4">My Skills & Technologies</h4>
             <div className="grid grid-cols-3 gap-3">
