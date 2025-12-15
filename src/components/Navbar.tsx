@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Circle } from "lucide-react";
 import { Button } from "./ui/button";
 import ThemeToggle from "./ThemeToggle";
 
@@ -14,14 +14,26 @@ const navLinks = [
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const isAvailable = true; // Toggle this to change availability status
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
-          <a href="#home" className="text-xl md:text-2xl font-bold">
-            <span className="gradient-text">Morzen</span>
-          </a>
+          <div className="flex items-center gap-3">
+            <a href="#home" className="text-xl md:text-2xl font-bold">
+              <span className="gradient-text">Morzen</span>
+            </a>
+            {/* Availability Badge */}
+            <div className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+              isAvailable 
+                ? "bg-green-500/10 text-green-500 border border-green-500/20" 
+                : "bg-orange-500/10 text-orange-500 border border-orange-500/20"
+            }`}>
+              <Circle className={`w-2 h-2 fill-current ${isAvailable ? "animate-pulse" : ""}`} />
+              {isAvailable ? "Available for Work" : "Currently Busy"}
+            </div>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
@@ -35,7 +47,9 @@ const Navbar = () => {
               </a>
             ))}
             <ThemeToggle />
-            <Button size="sm">Hire Me</Button>
+            <Button size="sm" asChild>
+              <a href="#contact">Hire Me</a>
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -64,7 +78,9 @@ const Navbar = () => {
                   {link.label}
                 </a>
               ))}
-              <Button size="sm" className="w-fit">Hire Me</Button>
+              <Button size="sm" className="w-fit" asChild>
+                <a href="#contact">Hire Me</a>
+              </Button>
             </div>
           </div>
         )}
