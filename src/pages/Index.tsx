@@ -9,12 +9,15 @@ import PortfolioSection from "@/components/PortfolioSection";
 import StatsSection from "@/components/StatsSection";
 import WhyChooseSection from "@/components/WhyChooseSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import BlogSection from "@/components/BlogSection";
+import MeetingScheduler from "@/components/MeetingScheduler";
 import PricingSection from "@/components/PricingSection";
 import FAQSection from "@/components/FAQSection";
 import CTASection from "@/components/CTASection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
+import QuoteCalculator from "@/components/QuoteCalculator";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import PageLoader from "@/components/PageLoader";
 import ScrollProgress from "@/components/ScrollProgress";
@@ -37,12 +40,15 @@ const Index = () => {
         <StatsSection />
         <WhyChooseSection />
         <TestimonialsSection />
+        <BlogSection />
+        <MeetingScheduler />
         <PricingSection />
         <FAQSection />
         <CTASection />
         <ContactSection />
         <Footer />
         <FloatingButtons />
+        <QuoteCalculator />
       </main>
     </>
   );
