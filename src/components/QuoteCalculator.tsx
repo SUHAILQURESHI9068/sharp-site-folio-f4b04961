@@ -1,8 +1,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calculator, Check, ArrowRight, X } from "lucide-react";
+import { Calculator, Check, ArrowRight, X, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const projectTypes = [
   { id: "landing", name: "Landing Page", basePrice: 5000 },
@@ -26,9 +30,13 @@ const features = [
 ];
 
 const QuoteCalculator = () => {
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
+  const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>(["responsive"]);
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
 
   const calculateTotal = () => {
     const typePrice = projectTypes.find(t => t.id === selectedType)?.basePrice || 0;
@@ -54,6 +62,45 @@ const QuoteCalculator = () => {
       currency: "INR",
       maximumFractionDigits: 0,
     }).format(price);
+  };
+
+  const handleSubmitQuote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase
+        .from("quote_requests")
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          project_type: projectTypes.find(t => t.id === selectedType)?.name || "",
+          features: selectedFeatures,
+          estimated_price: calculateTotal(),
+          message: formData.message || null,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Quote Request Sent!",
+        description: "I'll get back to you with a detailed quote soon.",
+      });
+      setIsOpen(false);
+      setStep(1);
+      setSelectedType(null);
+      setSelectedFeatures(["responsive"]);
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      console.error("Error submitting quote:", error);
+      toast({
+        title: "Error",
+        description: "Failed to submit quote request. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -163,24 +210,72 @@ const QuoteCalculator = () => {
                 </div>
               </div>
 
-              {/* Total */}
-              <div className="border-t border-border pt-6">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-lg font-semibold">Estimated Total:</span>
-                  <span className="text-3xl font-bold gradient-text">
-                    {selectedType ? formatPrice(calculateTotal()) : "₹0"}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground mb-4">
-                  * This is an estimate. Final price may vary based on project requirements.
-                </p>
-                <Button className="w-full" size="lg" asChild>
-                  <a href="#contact">
+              {/* Step 1: Selection */}
+              {step === 1 && (
+                <div className="border-t border-border pt-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-lg font-semibold">Estimated Total:</span>
+                    <span className="text-3xl font-bold gradient-text">
+                      {selectedType ? formatPrice(calculateTotal()) : "₹0"}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    * This is an estimate. Final price may vary based on project requirements.
+                  </p>
+                  <Button 
+                    className="w-full" 
+                    size="lg" 
+                    onClick={() => setStep(2)}
+                    disabled={!selectedType}
+                  >
                     Get Detailed Quote
                     <ArrowRight className="ml-2 w-4 h-4" />
-                  </a>
-                </Button>
-              </div>
+                  </Button>
+                </div>
+              )}
+
+              {/* Step 2: Contact Form */}
+              {step === 2 && (
+                <form onSubmit={handleSubmitQuote} className="border-t border-border pt-6">
+                  <h4 className="font-semibold mb-4">3. Your Contact Details</h4>
+                  <div className="space-y-4 mb-6">
+                    <Input
+                      placeholder="Your Name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      required
+                    />
+                    <Input
+                      type="email"
+                      placeholder="Your Email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      required
+                    />
+                    <Textarea
+                      placeholder="Additional details about your project (optional)"
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      rows={3}
+                    />
+                  </div>
+                  <div className="bg-muted/50 rounded-lg p-4 mb-4">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">Estimated Total:</span>
+                      <span className="text-xl font-bold gradient-text">{formatPrice(calculateTotal())}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <Button type="button" variant="outline" onClick={() => setStep(1)}>
+                      Back
+                    </Button>
+                    <Button type="submit" className="flex-1" disabled={isSubmitting}>
+                      {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                      {isSubmitting ? "Sending..." : "Submit Quote Request"}
+                    </Button>
+                  </div>
+                </form>
+              )}
             </motion.div>
           </motion.div>
         )}

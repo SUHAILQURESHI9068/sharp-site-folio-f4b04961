@@ -14,7 +14,111 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      contact_submissions: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      meeting_bookings: {
+        Row: {
+          created_at: string
+          date: string
+          email: string
+          id: string
+          meeting_type: string
+          name: string
+          time: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          email: string
+          id?: string
+          meeting_type: string
+          name: string
+          time: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          email?: string
+          id?: string
+          meeting_type?: string
+          name?: string
+          time?: string
+        }
+        Relationships: []
+      }
+      newsletter_subscriptions: {
+        Row: {
+          email: string
+          id: string
+          subscribed_at: string
+        }
+        Insert: {
+          email: string
+          id?: string
+          subscribed_at?: string
+        }
+        Update: {
+          email?: string
+          id?: string
+          subscribed_at?: string
+        }
+        Relationships: []
+      }
+      quote_requests: {
+        Row: {
+          created_at: string
+          email: string
+          estimated_price: number
+          features: string[]
+          id: string
+          message: string | null
+          name: string
+          project_type: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          estimated_price: number
+          features?: string[]
+          id?: string
+          message?: string | null
+          name: string
+          project_type: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          estimated_price?: number
+          features?: string[]
+          id?: string
+          message?: string | null
+          name?: string
+          project_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

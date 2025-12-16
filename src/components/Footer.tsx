@@ -1,7 +1,52 @@
-import { Github, Linkedin, Twitter, Instagram, Mail, MapPin, Phone } from "lucide-react";
+import { useState } from "react";
+import { Github, Linkedin, Twitter, Instagram, Mail, MapPin, Phone, Send, Loader2 } from "lucide-react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Footer = () => {
+  const { toast } = useToast();
   const currentYear = new Date().getFullYear();
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase
+        .from("newsletter_subscriptions")
+        .insert({ email });
+
+      if (error) {
+        if (error.code === "23505") {
+          toast({
+            title: "Already Subscribed",
+            description: "This email is already subscribed to the newsletter.",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Subscribed!",
+          description: "You've been added to the newsletter.",
+        });
+        setEmail("");
+      }
+    } catch (error) {
+      console.error("Error subscribing:", error);
+      toast({
+        title: "Error",
+        description: "Failed to subscribe. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const quickLinks = [
     { href: "#home", label: "Home" },
@@ -64,8 +109,24 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-bold mb-4">Connect</h4>
-            <div className="flex gap-3">
+            <h4 className="font-bold mb-4">Newsletter</h4>
+            <p className="text-muted-foreground text-sm mb-3">
+              Get updates on new projects and tips.
+            </p>
+            <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
+              <Input
+                type="email"
+                placeholder="Your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="h-10"
+              />
+              <Button type="submit" size="icon" disabled={isSubmitting}>
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              </Button>
+            </form>
+            <div className="flex gap-3 mt-4">
               {socialLinks.map((social) => (
                 <a
                   key={social.label}
