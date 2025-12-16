@@ -64,6 +64,20 @@ const MeetingScheduler = () => {
 
       if (error) throw error;
 
+      // Send email notification (fire and forget)
+      supabase.functions.invoke("send-notification", {
+        body: { 
+          type: "meeting", 
+          data: {
+            name: formData.name,
+            email: formData.email,
+            meeting_type: meetingTypes.find(t => t.id === selectedType)?.name,
+            date: selectedDate,
+            time: selectedTime,
+          }
+        },
+      }).catch(console.error);
+
       toast({
         title: "Meeting Scheduled!",
         description: `Your ${meetingTypes.find(t => t.id === selectedType)?.name} has been booked for ${selectedDate} at ${selectedTime}.`,

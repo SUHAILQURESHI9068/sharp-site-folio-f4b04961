@@ -82,6 +82,21 @@ const QuoteCalculator = () => {
 
       if (error) throw error;
 
+      // Send email notification (fire and forget)
+      supabase.functions.invoke("send-notification", {
+        body: { 
+          type: "quote", 
+          data: {
+            name: formData.name,
+            email: formData.email,
+            project_type: projectTypes.find(t => t.id === selectedType)?.name,
+            features: selectedFeatures,
+            estimated_price: calculateTotal(),
+            message: formData.message,
+          }
+        },
+      }).catch(console.error);
+
       toast({
         title: "Quote Request Sent!",
         description: "I'll get back to you with a detailed quote soon.",
