@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Clock, Video, Phone, MessageSquare, ArrowRight, Check } from "lucide-react";
+import { Calendar, Clock, Video, Phone, MessageSquare, ArrowRight, Check, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const meetingTypes = [
   { id: "discovery", name: "Discovery Call", duration: "30 min", icon: Phone, description: "Discuss your project requirements" },
@@ -38,6 +39,7 @@ const getNextDays = () => {
 const MeetingScheduler = () => {
   const { toast } = useToast();
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -45,18 +47,43 @@ const MeetingScheduler = () => {
   
   const days = getNextDays();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Meeting Scheduled! 🎉",
-      description: `Your ${meetingTypes.find(t => t.id === selectedType)?.name} has been booked for ${selectedDate} at ${selectedTime}. Check your email for confirmation.`,
-    });
-    // Reset form
-    setStep(1);
-    setSelectedType(null);
-    setSelectedDate(null);
-    setSelectedTime(null);
-    setFormData({ name: "", email: "", message: "" });
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase
+        .from("meeting_bookings")
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          meeting_type: selectedType!,
+          date: selectedDate!,
+          time: selectedTime!,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Meeting Scheduled!",
+        description: `Your ${meetingTypes.find(t => t.id === selectedType)?.name} has been booked for ${selectedDate} at ${selectedTime}.`,
+      });
+      // Reset form
+      setStep(1);
+      setSelectedType(null);
+      setSelectedDate(null);
+      setSelectedTime(null);
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      console.error("Error booking meeting:", error);
+      toast({
+        title: "Error",
+        description: "Failed to book meeting. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -239,9 +266,10 @@ const MeetingScheduler = () => {
                 <Button type="button" variant="outline" onClick={() => setStep(2)}>
                   Back
                 </Button>
-                <Button type="submit" className="flex-1">
-                  Confirm Booking
-                  <Check className="ml-2 w-4 h-4" />
+                <Button type="submit" className="flex-1" disabled={isSubmitting}>
+                  {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  {isSubmitting ? "Booking..." : "Confirm Booking"}
+                  {!isSubmitting && <Check className="ml-2 w-4 h-4" />}
                 </Button>
               </div>
             </form>
