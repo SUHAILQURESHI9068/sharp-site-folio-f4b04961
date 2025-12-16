@@ -31,6 +31,11 @@ const ContactSection = () => {
 
       if (error) throw error;
 
+      // Send email notification (fire and forget)
+      supabase.functions.invoke("send-notification", {
+        body: { type: "contact", data: formData },
+      }).catch(console.error);
+
       toast({
         title: "Message Sent!",
         description: "Thank you for reaching out. I'll get back to you soon!",

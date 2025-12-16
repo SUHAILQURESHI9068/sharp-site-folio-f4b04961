@@ -30,6 +30,11 @@ const Footer = () => {
           throw error;
         }
       } else {
+        // Send email notification (fire and forget)
+        supabase.functions.invoke("send-notification", {
+          body: { type: "newsletter", data: { email } },
+        }).catch(console.error);
+
         toast({
           title: "Subscribed!",
           description: "You've been added to the newsletter.",
