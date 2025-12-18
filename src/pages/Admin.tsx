@@ -5,13 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Lock, Loader2, Mail, Calendar, Calculator, Users } from "lucide-react";
+import { ArrowLeft, Lock, Loader2, Mail, Calendar, Calculator, Users, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
 import ContactSubmissions from "@/components/admin/ContactSubmissions";
 import MeetingBookings from "@/components/admin/MeetingBookings";
 import QuoteRequests from "@/components/admin/QuoteRequests";
 import NewsletterSubscriptions from "@/components/admin/NewsletterSubscriptions";
+import AdminAnalytics from "@/components/admin/AdminAnalytics";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -221,8 +222,12 @@ const Admin = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="contacts" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+        <Tabs defaultValue="analytics" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+            <TabsTrigger value="analytics" className="gap-2">
+              <BarChart3 className="w-4 h-4" />
+              <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
             <TabsTrigger value="contacts" className="gap-2">
               <Mail className="w-4 h-4" />
               <span className="hidden sm:inline">Contacts</span>
@@ -241,6 +246,9 @@ const Admin = () => {
             </TabsTrigger>
           </TabsList>
 
+          <TabsContent value="analytics">
+            <AdminAnalytics />
+          </TabsContent>
           <TabsContent value="contacts">
             <ContactSubmissions />
           </TabsContent>
