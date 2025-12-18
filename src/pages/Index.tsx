@@ -21,6 +21,7 @@ import QuoteCalculator from "@/components/QuoteCalculator";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import PageLoader from "@/components/PageLoader";
 import ScrollProgress from "@/components/ScrollProgress";
+import AIChatbot from "@/components/AIChatbot";
 
 const Index = () => {
   return (
@@ -49,6 +50,7 @@ const Index = () => {
         <Footer />
         <FloatingButtons />
         <QuoteCalculator />
+        <AIChatbot />
       </main>
     </>
   );
