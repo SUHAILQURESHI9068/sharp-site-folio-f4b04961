@@ -3,8 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Calculator, RefreshCw } from "lucide-react";
+import { Loader2, Calculator, RefreshCw, Download, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 
 interface QuoteRequest {
@@ -21,6 +22,7 @@ interface QuoteRequest {
 const QuoteRequests = () => {
   const [quotes, setQuotes] = useState<QuoteRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchQuotes = async () => {
     setLoading(true);
@@ -39,6 +41,36 @@ const QuoteRequests = () => {
     fetchQuotes();
   }, []);
 
+  const filteredQuotes = quotes.filter(
+    (quote) =>
+      quote.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      quote.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      quote.project_type.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const exportToCSV = () => {
+    const headers = ["Name", "Email", "Project Type", "Features", "Estimated Price", "Message", "Date"];
+    const csvData = filteredQuotes.map((quote) => [
+      quote.name,
+      quote.email,
+      quote.project_type,
+      quote.features.join("; "),
+      quote.estimated_price.toString(),
+      quote.message || "",
+      format(new Date(quote.created_at), "yyyy-MM-dd HH:mm"),
+    ]);
+
+    const csvContent = [headers, ...csvData]
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `quote-requests-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    link.click();
+  };
+
   if (loading) {
     return (
       <Card>
@@ -51,20 +83,35 @@ const QuoteRequests = () => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-3">
           <Calculator className="w-5 h-5 text-primary" />
           <CardTitle>Quote Requests</CardTitle>
-          <Badge variant="secondary">{quotes.length}</Badge>
+          <Badge variant="secondary">{filteredQuotes.length}</Badge>
         </div>
-        <Button variant="outline" size="sm" onClick={fetchQuotes}>
-          <RefreshCw className="w-4 h-4 mr-2" />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search quotes..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 w-64"
+            />
+          </div>
+          <Button variant="outline" size="sm" onClick={exportToCSV}>
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
+          </Button>
+          <Button variant="outline" size="sm" onClick={fetchQuotes}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
-        {quotes.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">No quote requests yet</p>
+        {filteredQuotes.length === 0 ? (
+          <p className="text-center text-muted-foreground py-8">No quote requests found</p>
         ) : (
           <div className="overflow-x-auto">
             <Table>
@@ -79,7 +126,7 @@ const QuoteRequests = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {quotes.map((quote) => (
+                {filteredQuotes.map((quote) => (
                   <TableRow key={quote.id}>
                     <TableCell className="font-medium">{quote.name}</TableCell>
                     <TableCell>
