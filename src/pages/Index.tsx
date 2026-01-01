@@ -22,6 +22,7 @@ import AnimatedBackground from "@/components/AnimatedBackground";
 import PageLoader from "@/components/PageLoader";
 import ScrollProgress from "@/components/ScrollProgress";
 import AIChatbot from "@/components/AIChatbot";
+import ExitIntentPopup from "@/components/ExitIntentPopup";
 
 const Index = () => {
   return (
@@ -51,6 +52,7 @@ const Index = () => {
         <FloatingButtons />
         <QuoteCalculator />
         <AIChatbot />
+        <ExitIntentPopup />
       </main>
     </>
   );

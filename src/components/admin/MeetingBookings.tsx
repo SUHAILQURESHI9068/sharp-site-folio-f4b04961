@@ -3,8 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Calendar, RefreshCw } from "lucide-react";
+import { Loader2, Calendar, RefreshCw, Download, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 
 interface MeetingBooking {
@@ -20,6 +21,7 @@ interface MeetingBooking {
 const MeetingBookings = () => {
   const [bookings, setBookings] = useState<MeetingBooking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const fetchBookings = async () => {
     setLoading(true);
@@ -37,6 +39,35 @@ const MeetingBookings = () => {
   useEffect(() => {
     fetchBookings();
   }, []);
+
+  const filteredBookings = bookings.filter(
+    (booking) =>
+      booking.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.meeting_type.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const exportToCSV = () => {
+    const headers = ["Name", "Email", "Meeting Type", "Date", "Time", "Booked On"];
+    const csvData = filteredBookings.map((booking) => [
+      booking.name,
+      booking.email,
+      booking.meeting_type,
+      format(new Date(booking.date), "yyyy-MM-dd"),
+      booking.time,
+      format(new Date(booking.created_at), "yyyy-MM-dd HH:mm"),
+    ]);
+
+    const csvContent = [headers, ...csvData]
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `meeting-bookings-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    link.click();
+  };
 
   const getMeetingTypeBadge = (type: string) => {
     const variants: Record<string, "default" | "secondary" | "outline"> = {
@@ -59,20 +90,35 @@ const MeetingBookings = () => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-3">
           <Calendar className="w-5 h-5 text-primary" />
           <CardTitle>Meeting Bookings</CardTitle>
-          <Badge variant="secondary">{bookings.length}</Badge>
+          <Badge variant="secondary">{filteredBookings.length}</Badge>
         </div>
-        <Button variant="outline" size="sm" onClick={fetchBookings}>
-          <RefreshCw className="w-4 h-4 mr-2" />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search bookings..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 w-64"
+            />
+          </div>
+          <Button variant="outline" size="sm" onClick={exportToCSV}>
+            <Download className="w-4 h-4 mr-2" />
+            Export CSV
+          </Button>
+          <Button variant="outline" size="sm" onClick={fetchBookings}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
-        {bookings.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">No meeting bookings yet</p>
+        {filteredBookings.length === 0 ? (
+          <p className="text-center text-muted-foreground py-8">No meeting bookings found</p>
         ) : (
           <div className="overflow-x-auto">
             <Table>
@@ -87,7 +133,7 @@ const MeetingBookings = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {bookings.map((booking) => (
+                {filteredBookings.map((booking) => (
                   <TableRow key={booking.id}>
                     <TableCell className="font-medium">{booking.name}</TableCell>
                     <TableCell>
