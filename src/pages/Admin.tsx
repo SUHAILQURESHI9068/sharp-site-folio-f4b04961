@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Lock, Loader2, Mail, Calendar, Calculator, Users, BarChart3 } from "lucide-react";
+import { ArrowLeft, Lock, Loader2, Mail, Calendar, Calculator, Users, BarChart3, FileText, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
 import ContactSubmissions from "@/components/admin/ContactSubmissions";
@@ -13,6 +13,8 @@ import MeetingBookings from "@/components/admin/MeetingBookings";
 import QuoteRequests from "@/components/admin/QuoteRequests";
 import NewsletterSubscriptions from "@/components/admin/NewsletterSubscriptions";
 import AdminAnalytics from "@/components/admin/AdminAnalytics";
+import BlogEditor from "@/components/admin/BlogEditor";
+import ClientProjectsManager from "@/components/admin/ClientProjectsManager";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -223,7 +225,7 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="analytics" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 lg:w-auto lg:inline-grid">
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Analytics</span>
@@ -244,6 +246,14 @@ const Admin = () => {
               <Users className="w-4 h-4" />
               <span className="hidden sm:inline">Newsletter</span>
             </TabsTrigger>
+            <TabsTrigger value="blog" className="gap-2">
+              <FileText className="w-4 h-4" />
+              <span className="hidden sm:inline">Blog</span>
+            </TabsTrigger>
+            <TabsTrigger value="clients" className="gap-2">
+              <Briefcase className="w-4 h-4" />
+              <span className="hidden sm:inline">Clients</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="analytics">
@@ -260,6 +270,12 @@ const Admin = () => {
           </TabsContent>
           <TabsContent value="newsletter">
             <NewsletterSubscriptions />
+          </TabsContent>
+          <TabsContent value="blog">
+            <BlogEditor />
+          </TabsContent>
+          <TabsContent value="clients">
+            <ClientProjectsManager />
           </TabsContent>
         </Tabs>
       </div>
