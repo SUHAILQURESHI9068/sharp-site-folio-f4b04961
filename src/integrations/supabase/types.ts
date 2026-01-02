@@ -56,6 +56,121 @@ export type Database = {
         }
         Relationships: []
       }
+      client_documents: {
+        Row: {
+          file_type: string | null
+          file_url: string
+          id: string
+          name: string
+          project_id: string
+          uploaded_at: string
+        }
+        Insert: {
+          file_type?: string | null
+          file_url: string
+          id?: string
+          name: string
+          project_id: string
+          uploaded_at?: string
+        }
+        Update: {
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          name?: string
+          project_id?: string
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_documents_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "client_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_milestones: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          is_completed: boolean | null
+          project_id: string
+          title: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          is_completed?: boolean | null
+          project_id: string
+          title: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          is_completed?: boolean | null
+          project_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_milestones_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "client_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_projects: {
+        Row: {
+          client_email: string
+          created_at: string
+          description: string | null
+          estimated_completion: string | null
+          id: string
+          progress: number
+          project_name: string
+          start_date: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          client_email: string
+          created_at?: string
+          description?: string | null
+          estimated_completion?: string | null
+          id?: string
+          progress?: number
+          project_name: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          client_email?: string
+          created_at?: string
+          description?: string | null
+          estimated_completion?: string | null
+          id?: string
+          progress?: number
+          project_name?: string
+          start_date?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_submissions: {
         Row: {
           created_at: string
