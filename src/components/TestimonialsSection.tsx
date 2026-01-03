@@ -1,45 +1,76 @@
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import testimonial1 from "@/assets/testimonial-1.jpg";
 import testimonial2 from "@/assets/testimonial-2.jpg";
 import testimonial3 from "@/assets/testimonial-3.jpg";
 
-const testimonials = [
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string | null;
+  company: string | null;
+  content: string;
+  rating: number;
+  avatar_url: string | null;
+  is_featured: boolean | null;
+}
+
+const defaultTestimonials = [
   {
-    id: 1,
+    id: "1",
     name: "Robert Anderson",
-    role: "CEO, TechStart Inc.",
+    role: "CEO",
+    company: "TechStart Inc.",
     content: "Exceptional work! The website exceeded our expectations. Professional, responsive, and delivered on time. Our conversion rates increased by 200%!",
     rating: 5,
-    image: testimonial1,
+    avatar_url: testimonial1,
+    is_featured: false,
   },
   {
-    id: 2,
+    id: "2",
     name: "Sarah Chen",
-    role: "Founder, EcoStore",
+    role: "Founder",
+    company: "EcoStore",
     content: "Our e-commerce sales increased by 150% after the website redesign. The attention to detail and user experience is remarkable. Best investment we made!",
     rating: 5,
-    image: testimonial2,
+    avatar_url: testimonial2,
+    is_featured: false,
   },
   {
-    id: 3,
+    id: "3",
     name: "Michael Foster",
-    role: "Creative Director, DesignHub",
+    role: "Creative Director",
+    company: "DesignHub",
     content: "Working with this developer was a fantastic experience. Great communication, creative solutions, and outstanding results. Highly recommend for any project!",
     rating: 5,
-    image: testimonial3,
-  },
-  {
-    id: 4,
-    name: "David Smith",
-    role: "Small Business Owner",
-    content: "Finally, a developer who understands business needs! My new website has brought in more clients than ever before. The ROI has been incredible.",
-    rating: 5,
-    image: null,
+    avatar_url: testimonial3,
+    is_featured: false,
   },
 ];
 
 const TestimonialsSection = () => {
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      const { data, error } = await supabase
+        .from("testimonials")
+        .select("*")
+        .eq("is_approved", true)
+        .order("is_featured", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(6);
+
+      if (!error && data && data.length > 0) {
+        setTestimonials(data);
+      }
+    };
+
+    fetchTestimonials();
+  }, []);
+
   return (
     <section className="section-padding relative">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background" />
@@ -70,10 +101,15 @@ const TestimonialsSection = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               whileHover={{ scale: 1.02 }}
-              className="glass-card p-8 relative group"
+              className={`glass-card p-8 relative group ${testimonial.is_featured ? "ring-2 ring-primary/50" : ""}`}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <Quote className="absolute top-6 right-6 w-10 h-10 text-primary/20" />
+              {testimonial.is_featured && (
+                <span className="absolute top-4 left-4 text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full">
+                  Featured
+                </span>
+              )}
               <div className="flex gap-1 mb-4">
                 {Array.from({ length: testimonial.rating }).map((_, i) => (
                   <Star key={i} className="w-5 h-5 fill-primary text-primary" />
@@ -83,9 +119,9 @@ const TestimonialsSection = () => {
                 "{testimonial.content}"
               </p>
               <div className="flex items-center gap-4 relative z-10">
-                {testimonial.image ? (
+                {testimonial.avatar_url ? (
                   <img
-                    src={testimonial.image}
+                    src={testimonial.avatar_url}
                     alt={testimonial.name}
                     className="w-14 h-14 rounded-full object-cover border-2 border-primary/30"
                   />
@@ -96,7 +132,9 @@ const TestimonialsSection = () => {
                 )}
                 <div>
                   <h4 className="font-bold text-foreground">{testimonial.name}</h4>
-                  <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {testimonial.role}{testimonial.company ? `, ${testimonial.company}` : ""}
+                  </p>
                 </div>
               </div>
             </motion.div>
