@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Lock, Loader2, Mail, Calendar, Calculator, Users, BarChart3, FileText, Briefcase } from "lucide-react";
+import { ArrowLeft, Lock, Loader2, Mail, Calendar, Calculator, Users, BarChart3, FileText, Briefcase, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
 import ContactSubmissions from "@/components/admin/ContactSubmissions";
@@ -15,6 +15,7 @@ import NewsletterSubscriptions from "@/components/admin/NewsletterSubscriptions"
 import AdminAnalytics from "@/components/admin/AdminAnalytics";
 import BlogEditor from "@/components/admin/BlogEditor";
 import ClientProjectsManager from "@/components/admin/ClientProjectsManager";
+import TestimonialsManager from "@/components/admin/TestimonialsManager";
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -225,7 +226,7 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="analytics" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 lg:w-auto lg:inline-grid">
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Analytics</span>
@@ -245,6 +246,10 @@ const Admin = () => {
             <TabsTrigger value="newsletter" className="gap-2">
               <Users className="w-4 h-4" />
               <span className="hidden sm:inline">Newsletter</span>
+            </TabsTrigger>
+            <TabsTrigger value="testimonials" className="gap-2">
+              <MessageSquare className="w-4 h-4" />
+              <span className="hidden sm:inline">Reviews</span>
             </TabsTrigger>
             <TabsTrigger value="blog" className="gap-2">
               <FileText className="w-4 h-4" />
@@ -270,6 +275,9 @@ const Admin = () => {
           </TabsContent>
           <TabsContent value="newsletter">
             <NewsletterSubscriptions />
+          </TabsContent>
+          <TabsContent value="testimonials">
+            <TestimonialsManager />
           </TabsContent>
           <TabsContent value="blog">
             <BlogEditor />

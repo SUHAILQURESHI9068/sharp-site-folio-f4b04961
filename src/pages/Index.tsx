@@ -9,6 +9,7 @@ import PortfolioSection from "@/components/PortfolioSection";
 import StatsSection from "@/components/StatsSection";
 import WhyChooseSection from "@/components/WhyChooseSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import TestimonialForm from "@/components/TestimonialForm";
 import BlogSection from "@/components/BlogSection";
 import MeetingScheduler from "@/components/MeetingScheduler";
 import PricingSection from "@/components/PricingSection";
@@ -42,6 +43,7 @@ const Index = () => {
         <StatsSection />
         <WhyChooseSection />
         <TestimonialsSection />
+        <TestimonialForm />
         <BlogSection />
         <MeetingScheduler />
         <PricingSection />
