@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Lock, Loader2, Mail, Calendar, Calculator, Users, BarChart3, FileText, Briefcase, MessageSquare } from "lucide-react";
+import { ArrowLeft, Lock, Loader2, Mail, Calendar, Calculator, Users, BarChart3, FileText, Briefcase, MessageSquare, Eye, EyeOff, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
+import { z } from "zod";
 import ContactSubmissions from "@/components/admin/ContactSubmissions";
 import MeetingBookings from "@/components/admin/MeetingBookings";
 import QuoteRequests from "@/components/admin/QuoteRequests";
@@ -17,6 +19,14 @@ import BlogEditor from "@/components/admin/BlogEditor";
 import ClientProjectsManager from "@/components/admin/ClientProjectsManager";
 import TestimonialsManager from "@/components/admin/TestimonialsManager";
 
+// Validation schemas
+const emailSchema = z.string().email("Please enter a valid email address");
+const passwordSchema = z.string()
+  .min(8, "Password must be at least 8 characters")
+  .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+  .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+  .regex(/[0-9]/, "Password must contain at least one number");
+
 const Admin = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
@@ -24,8 +34,11 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [authLoading, setAuthLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -67,8 +80,59 @@ const Admin = () => {
     setLoading(false);
   };
 
+  const validateInputs = (): boolean => {
+    const newErrors: { email?: string; password?: string } = {};
+    
+    const emailResult = emailSchema.safeParse(email);
+    if (!emailResult.success) {
+      newErrors.email = emailResult.error.errors[0].message;
+    }
+    
+    if (!isForgotPassword) {
+      if (isSignUp) {
+        const passwordResult = passwordSchema.safeParse(password);
+        if (!passwordResult.success) {
+          newErrors.password = passwordResult.error.errors[0].message;
+        }
+      } else if (password.length < 6) {
+        newErrors.password = "Password must be at least 6 characters";
+      }
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const emailResult = emailSchema.safeParse(email);
+    if (!emailResult.success) {
+      setErrors({ email: emailResult.error.errors[0].message });
+      return;
+    }
+    
+    setAuthLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/admin`,
+      });
+      
+      if (error) throw error;
+      toast.success("Password reset email sent! Check your inbox.");
+      setIsForgotPassword(false);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to send reset email");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateInputs()) return;
+    
     setAuthLoading(true);
 
     try {
@@ -80,14 +144,24 @@ const Admin = () => {
             emailRedirectTo: `${window.location.origin}/admin`
           }
         });
-        if (error) throw error;
+        if (error) {
+          if (error.message.includes("already registered")) {
+            throw new Error("This email is already registered. Please login instead.");
+          }
+          throw error;
+        }
         toast.success("Account created! Please wait for admin access to be granted.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        if (error) throw error;
+        if (error) {
+          if (error.message.includes("Invalid login credentials")) {
+            throw new Error("Invalid email or password. Please try again.");
+          }
+          throw error;
+        }
         toast.success("Logged in successfully!");
       }
     } catch (error: any) {
@@ -112,6 +186,65 @@ const Admin = () => {
     );
   }
 
+  // Forgot password form
+  if (isForgotPassword) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+              <KeyRound className="w-6 h-6 text-primary" />
+            </div>
+            <CardTitle>Reset Password</CardTitle>
+            <CardDescription>Enter your email to receive a password reset link</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reset-email">Email</Label>
+                <Input
+                  id="reset-email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setErrors({});
+                  }}
+                  className={errors.email ? "border-destructive" : ""}
+                />
+                {errors.email && (
+                  <p className="text-sm text-destructive">{errors.email}</p>
+                )}
+              </div>
+              <Button type="submit" className="w-full" disabled={authLoading}>
+                {authLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <Mail className="w-4 h-4 mr-2" />
+                )}
+                Send Reset Link
+              </Button>
+            </form>
+            <div className="mt-4">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setIsForgotPassword(false);
+                  setErrors({});
+                }}
+                className="w-full"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Login
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   // Not logged in - show login form
   if (!user) {
     return (
@@ -122,24 +255,61 @@ const Admin = () => {
               <Lock className="w-6 h-6 text-primary" />
             </div>
             <CardTitle>{isSignUp ? "Create Admin Account" : "Admin Login"}</CardTitle>
+            {isSignUp && (
+              <CardDescription>
+                Password must be 8+ chars with uppercase, lowercase & number
+              </CardDescription>
+            )}
           </CardHeader>
           <CardContent>
             <form onSubmit={handleAuth} className="space-y-4">
-              <Input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <Input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={6}
-              />
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setErrors({});
+                  }}
+                  className={errors.email ? "border-destructive" : ""}
+                />
+                {errors.email && (
+                  <p className="text-sm text-destructive">{errors.email}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setErrors({});
+                    }}
+                    className={errors.password ? "border-destructive pr-10" : "pr-10"}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="text-sm text-destructive">{errors.password}</p>
+                )}
+              </div>
               <Button type="submit" className="w-full" disabled={authLoading}>
                 {authLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -147,10 +317,27 @@ const Admin = () => {
                 {isSignUp ? "Sign Up" : "Login"}
               </Button>
             </form>
+            {!isSignUp && (
+              <div className="mt-3 text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsForgotPassword(true);
+                    setErrors({});
+                  }}
+                  className="text-sm text-muted-foreground hover:text-primary hover:underline"
+                >
+                  Forgot your password?
+                </button>
+              </div>
+            )}
             <div className="mt-4 text-center">
               <button
                 type="button"
-                onClick={() => setIsSignUp(!isSignUp)}
+                onClick={() => {
+                  setIsSignUp(!isSignUp);
+                  setErrors({});
+                }}
                 className="text-sm text-primary hover:underline"
               >
                 {isSignUp ? "Already have an account? Login" : "Need an account? Sign Up"}
