@@ -9,9 +9,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Briefcase, Plus, Pencil, Trash2, Search, RefreshCw } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Loader2, Briefcase, Plus, Pencil, Trash2, Search, RefreshCw, FolderOpen } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import ClientDocuments from "./ClientDocuments";
+import MilestoneManager from "./MilestoneManager";
 
 interface ClientProject {
   id: string;
@@ -51,6 +54,8 @@ const ClientProjectsManager = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<ClientProject | null>(null);
   const [formData, setFormData] = useState(emptyProject);
+  const [selectedProject, setSelectedProject] = useState<ClientProject | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
 
   const fetchProjects = async () => {
     setLoading(true);
@@ -127,7 +132,7 @@ const ClientProjectsManager = () => {
         setDialogOpen(false);
         fetchProjects();
       }
-    } else {
+  } else {
       const { error } = await supabase
         .from("client_projects")
         .insert([projectData]);
@@ -139,10 +144,28 @@ const ClientProjectsManager = () => {
         toast.success("Project created");
         setDialogOpen(false);
         fetchProjects();
+        
+        // Send welcome email for new project
+        try {
+          await supabase.functions.invoke("welcome-email", {
+            body: {
+              type: "project_created",
+              clientEmail: projectData.client_email,
+              projectName: projectData.project_name,
+            },
+          });
+        } catch (e) {
+          console.error("Failed to send welcome email:", e);
+        }
       }
     }
     
     setSaving(false);
+  };
+
+  const openProjectDetails = (project: ClientProject) => {
+    setSelectedProject(project);
+    setDetailsOpen(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -350,6 +373,9 @@ const ClientProjectsManager = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => openProjectDetails(project)}>
+                          <FolderOpen className="w-4 h-4" />
+                        </Button>
                         <Button variant="ghost" size="sm" onClick={() => openEditDialog(project)}>
                           <Pencil className="w-4 h-4" />
                         </Button>
@@ -370,6 +396,30 @@ const ClientProjectsManager = () => {
           </div>
         )}
       </CardContent>
+
+      <Sheet open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
+          {selectedProject && (
+            <>
+              <SheetHeader>
+                <SheetTitle>{selectedProject.project_name}</SheetTitle>
+                <p className="text-sm text-muted-foreground">{selectedProject.client_email}</p>
+              </SheetHeader>
+              <div className="space-y-6 mt-6">
+                <MilestoneManager 
+                  projectId={selectedProject.id} 
+                  projectName={selectedProject.project_name}
+                  clientEmail={selectedProject.client_email}
+                />
+                <ClientDocuments 
+                  projectId={selectedProject.id} 
+                  projectName={selectedProject.project_name} 
+                />
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </Card>
   );
 };
