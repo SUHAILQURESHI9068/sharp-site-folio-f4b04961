@@ -149,7 +149,7 @@ const PortfolioSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="flex flex-wrap justify-center gap-3 mb-6"
+          className="flex flex-wrap justify-center gap-2 md:gap-3 mb-4 md:mb-6"
         >
           {categories.map((category) => (
             <motion.button
@@ -157,7 +157,7 @@ const PortfolioSection = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setActiveFilter(category)}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+              className={`px-3 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all duration-300 ${
                 activeFilter === category
                   ? "bg-gradient-to-r from-primary to-secondary text-white shadow-lg shadow-primary/25"
                   : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
@@ -174,7 +174,7 @@ const PortfolioSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.15 }}
-          className="flex flex-wrap justify-center gap-2 mb-12"
+          className="flex flex-wrap justify-center gap-2 mb-8 md:mb-12"
         >
           {technologies.map((tech) => (
             <motion.button
@@ -182,7 +182,7 @@ const PortfolioSection = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setActiveTech(tech)}
-              className={`px-4 py-2 rounded-lg text-xs font-medium transition-all duration-300 ${
+              className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg text-[10px] md:text-xs font-medium transition-all duration-300 ${
                 activeTech === tech
                   ? "bg-primary/20 text-primary border border-primary/30"
                   : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent"
@@ -194,7 +194,7 @@ const PortfolioSection = () => {
         </motion.div>
 
         {/* Projects Grid */}
-        <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <motion.div layout className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
           <AnimatePresence mode="popLayout">
             {filteredProjects.map((project, index) => (
               <motion.div
@@ -212,27 +212,27 @@ const PortfolioSection = () => {
                     src={project.image}
                     alt={project.title}
                     loading="lazy"
-                    className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="w-full h-40 md:h-48 object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
                     <span className="text-sm font-medium text-foreground">View Project</span>
                   </div>
                   {/* Category Badge */}
-                  <div className="absolute top-3 left-3">
-                    <span className="px-2 py-1 bg-primary/90 text-primary-foreground text-xs font-medium rounded-md">
+                  <div className="absolute top-2 md:top-3 left-2 md:left-3">
+                    <span className="px-2 py-0.5 md:py-1 bg-primary/90 text-primary-foreground text-[10px] md:text-xs font-medium rounded-md">
                       {project.category}
                     </span>
                   </div>
                 </div>
-                <div className="p-5">
-                  <h3 className="text-lg font-bold group-hover:text-primary transition-colors">
+                <div className="p-4 md:p-5">
+                  <h3 className="text-base md:text-lg font-bold group-hover:text-primary transition-colors line-clamp-1">
                     {project.title}
                   </h3>
-                  <div className="flex flex-wrap gap-2 mt-3">
+                  <div className="flex flex-wrap gap-1.5 md:gap-2 mt-2 md:mt-3">
                     {project.technologies.slice(0, 3).map((tech) => (
                       <span
                         key={tech}
-                        className="text-xs px-2 py-1 bg-muted rounded-md text-muted-foreground"
+                        className="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 bg-muted rounded-md text-muted-foreground"
                       >
                         {tech}
                       </span>

@@ -70,41 +70,41 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="border-t border-border/50 py-12">
+    <footer className="border-t border-border/50 py-8 md:py-12">
       <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-4 gap-8 mb-8">
-          <div className="md:col-span-2">
-            <a href="#home" className="text-2xl font-bold mb-4 block">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-8">
+          <div className="col-span-2">
+            <a href="#home" className="text-xl md:text-2xl font-bold mb-4 block">
               <span className="gradient-text">Morzen</span>
             </a>
-            <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+            <p className="text-muted-foreground text-xs md:text-sm leading-relaxed mb-4">
               Professional web developer creating modern, fast, and high-converting 
               websites that help businesses grow online.
             </p>
-            <div className="space-y-2 text-sm text-muted-foreground">
+            <div className="space-y-2 text-xs md:text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <MapPin size={14} className="text-primary" />
-                <span>Saharanpur, Uttar Pradesh, India</span>
+                <MapPin size={12} className="text-primary flex-shrink-0" />
+                <span className="break-words">Saharanpur, Uttar Pradesh, India</span>
               </div>
               <div className="flex items-center gap-2">
-                <Phone size={14} className="text-primary" />
+                <Phone size={12} className="text-primary flex-shrink-0" />
                 <a href="tel:+917500669672" className="hover:text-primary transition-colors">+91 7500669672</a>
               </div>
               <div className="flex items-center gap-2">
-                <Mail size={14} className="text-primary" />
-                <a href="mailto:suhailqureshi0828@gmail.com" className="hover:text-primary transition-colors">suhailqureshi0828@gmail.com</a>
+                <Mail size={12} className="text-primary flex-shrink-0" />
+                <a href="mailto:suhailqureshi0828@gmail.com" className="hover:text-primary transition-colors break-all text-[11px] md:text-sm">suhailqureshi0828@gmail.com</a>
               </div>
             </div>
           </div>
 
           <div>
-            <h4 className="font-bold mb-4">Quick Links</h4>
-            <ul className="space-y-2">
+            <h4 className="font-bold mb-3 md:mb-4 text-sm md:text-base">Quick Links</h4>
+            <ul className="space-y-1.5 md:space-y-2">
               {quickLinks.map((link) => (
                 <li key={link.href}>
                   <a
                     href={link.href}
-                    className="text-muted-foreground hover:text-primary transition-colors text-sm"
+                    className="text-muted-foreground hover:text-primary transition-colors text-xs md:text-sm"
                   >
                     {link.label}
                   </a>
@@ -114,8 +114,8 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-bold mb-4">Newsletter</h4>
-            <p className="text-muted-foreground text-sm mb-3">
+            <h4 className="font-bold mb-3 md:mb-4 text-sm md:text-base">Newsletter</h4>
+            <p className="text-muted-foreground text-xs md:text-sm mb-3">
               Get updates on new projects and tips.
             </p>
             <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
@@ -125,29 +125,29 @@ const Footer = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-10"
+                className="h-9 md:h-10 text-xs md:text-sm"
               />
-              <Button type="submit" size="icon" disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              <Button type="submit" size="icon" className="h-9 w-9 md:h-10 md:w-10 flex-shrink-0" disabled={isSubmitting}>
+                {isSubmitting ? <Loader2 className="h-3 w-3 md:h-4 md:w-4 animate-spin" /> : <Send className="h-3 w-3 md:h-4 md:w-4" />}
               </Button>
             </form>
-            <div className="flex gap-3 mt-4">
+            <div className="flex gap-2 md:gap-3 mt-4">
               {socialLinks.map((social) => (
                 <a
                   key={social.label}
                   href={social.href}
                   aria-label={social.label}
-                  className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                  className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-300"
                 >
-                  <social.icon size={18} />
+                  <social.icon size={16} className="md:w-[18px] md:h-[18px]" />
                 </a>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="border-t border-border/50 pt-8 text-center">
-          <p className="text-muted-foreground text-sm">
+        <div className="border-t border-border/50 pt-6 md:pt-8 text-center">
+          <p className="text-muted-foreground text-xs md:text-sm">
             © {currentYear} Morzen. All rights reserved.
           </p>
         </div>
