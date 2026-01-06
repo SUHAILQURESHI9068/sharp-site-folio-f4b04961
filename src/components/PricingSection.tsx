@@ -5,10 +5,10 @@ import { Button } from "./ui/button";
 const packages = [
   {
     name: "Basic",
-    price: "$299",
+    price: "₹4,999",
     description: "Perfect for small businesses starting online",
     features: [
-      "5 Page Website",
+      "3-5 Page Website",
       "Mobile Responsive",
       "Contact Form",
       "Basic SEO Setup",
@@ -19,10 +19,10 @@ const packages = [
   },
   {
     name: "Standard",
-    price: "$599",
+    price: "₹9,999",
     description: "Ideal for growing businesses",
     features: [
-      "10 Page Website",
+      "8-10 Page Website",
       "Mobile Responsive",
       "Contact Form + Chat",
       "Advanced SEO",
@@ -35,14 +35,14 @@ const packages = [
   },
   {
     name: "Premium",
-    price: "$999",
+    price: "₹19,999",
     description: "Complete solution for established businesses",
     features: [
       "Unlimited Pages",
       "E-commerce Integration",
       "Custom Animations",
       "Full SEO Package",
-      "CMS Integration",
+      "Admin Panel / CMS",
       "Unlimited Revisions",
       "14 Days Delivery",
       "3 Months Support",
@@ -72,7 +72,7 @@ const PricingSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
           {packages.map((pkg, index) => (
             <motion.div
               key={pkg.name}
@@ -80,35 +80,36 @@ const PricingSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className={`glass-card p-8 relative ${
-                pkg.popular ? "border-primary/50 scale-105" : ""
+              className={`glass-card p-5 md:p-8 relative ${
+                pkg.popular ? "border-primary/50 sm:scale-105" : ""
               }`}
             >
               {pkg.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-primary to-secondary text-primary-foreground text-sm font-medium rounded-full">
+                <div className="absolute -top-3 md:-top-4 left-1/2 -translate-x-1/2 px-3 md:px-4 py-0.5 md:py-1 bg-gradient-to-r from-primary to-secondary text-primary-foreground text-xs md:text-sm font-medium rounded-full whitespace-nowrap">
                   Most Popular
                 </div>
               )}
-              <div className="text-center mb-8">
-                <h3 className="text-xl font-bold mb-2">{pkg.name}</h3>
-                <p className="text-muted-foreground text-sm mb-4">{pkg.description}</p>
-                <div className="text-4xl font-bold gradient-text">{pkg.price}</div>
+              <div className="text-center mb-6 md:mb-8">
+                <h3 className="text-lg md:text-xl font-bold mb-2">{pkg.name}</h3>
+                <p className="text-muted-foreground text-xs md:text-sm mb-3 md:mb-4">{pkg.description}</p>
+                <div className="text-2xl md:text-4xl font-bold gradient-text">{pkg.price}</div>
               </div>
-              <ul className="space-y-4 mb-8">
+              <ul className="space-y-3 md:space-y-4 mb-6 md:mb-8">
                 {pkg.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Check className="w-3 h-3 text-primary" />
+                  <li key={feature} className="flex items-center gap-2 md:gap-3">
+                    <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Check className="w-2.5 h-2.5 md:w-3 md:h-3 text-primary" />
                     </div>
-                    <span className="text-sm text-muted-foreground">{feature}</span>
+                    <span className="text-xs md:text-sm text-muted-foreground">{feature}</span>
                   </li>
                 ))}
               </ul>
               <Button
                 variant={pkg.popular ? "default" : "outline"}
                 className="w-full"
+                asChild
               >
-                Get Started
+                <a href="#contact">Get Started</a>
               </Button>
             </motion.div>
           ))}

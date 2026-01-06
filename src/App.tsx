@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Admin from "./pages/Admin";
 import BlogPost from "./pages/BlogPost";
 import ClientPortal from "./pages/ClientPortal";
+import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import GoogleAnalytics from "./components/GoogleAnalytics";
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/portal" element={<ClientPortal />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

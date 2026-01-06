@@ -9,24 +9,27 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const projectTypes = [
-  { id: "landing", name: "Landing Page", basePrice: 5000 },
-  { id: "business", name: "Business Website", basePrice: 15000 },
-  { id: "ecommerce", name: "E-commerce Store", basePrice: 30000 },
-  { id: "webapp", name: "Web Application", basePrice: 50000 },
-  { id: "custom", name: "Custom Project", basePrice: 25000 },
+  { id: "landing", name: "Landing Page", basePrice: 3000, description: "Single page with sections" },
+  { id: "portfolio", name: "Portfolio Website", basePrice: 5000, description: "Showcase your work" },
+  { id: "business", name: "Business Website", basePrice: 8000, description: "5-10 pages with features" },
+  { id: "ecommerce", name: "E-commerce Store", basePrice: 15000, description: "Online store with products" },
+  { id: "webapp", name: "Web Application", basePrice: 25000, description: "Custom functionality" },
+  { id: "custom", name: "Custom Project", basePrice: 10000, description: "Tailored to your needs" },
 ];
 
 const features = [
-  { id: "responsive", name: "Responsive Design", price: 0, included: true },
-  { id: "seo", name: "SEO Optimization", price: 3000 },
-  { id: "cms", name: "Content Management System", price: 5000 },
-  { id: "animations", name: "Custom Animations", price: 4000 },
-  { id: "forms", name: "Contact Forms & Integration", price: 2000 },
-  { id: "analytics", name: "Analytics Setup", price: 1500 },
-  { id: "social", name: "Social Media Integration", price: 2000 },
-  { id: "payment", name: "Payment Gateway", price: 8000 },
-  { id: "multilingual", name: "Multi-language Support", price: 6000 },
-  { id: "maintenance", name: "3 Months Maintenance", price: 5000 },
+  { id: "responsive", name: "Mobile Responsive", price: 0, included: true },
+  { id: "seo", name: "SEO Optimization", price: 1500 },
+  { id: "cms", name: "Admin Panel / CMS", price: 3000 },
+  { id: "animations", name: "Custom Animations", price: 2000 },
+  { id: "forms", name: "Contact Forms", price: 1000 },
+  { id: "analytics", name: "Google Analytics", price: 500 },
+  { id: "social", name: "Social Media Integration", price: 1000 },
+  { id: "payment", name: "Payment Gateway", price: 4000 },
+  { id: "multilingual", name: "Multi-language", price: 3000 },
+  { id: "hosting", name: "1 Year Free Hosting", price: 2000 },
+  { id: "domain", name: "Free Domain (1 Year)", price: 1000 },
+  { id: "maintenance", name: "3 Months Maintenance", price: 3000 },
 ];
 
 const QuoteCalculator = () => {
