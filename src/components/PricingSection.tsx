@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check, Calculator } from "lucide-react";
 import { Button } from "./ui/button";
 
 const packages = [
@@ -61,15 +61,19 @@ const PricingSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-12 md:mb-16"
         >
           <span className="text-primary font-medium mb-4 block">Pricing Plans</span>
           <h2 className="text-3xl md:text-5xl font-bold mb-4">
             Affordable <span className="gradient-text">Packages</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-muted-foreground max-w-2xl mx-auto mb-6">
             Transparent pricing with no hidden costs
           </p>
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-sm text-primary">
+            <Calculator className="w-4 h-4" />
+            <span>Use the calculator button (bottom right) for custom quotes!</span>
+          </div>
         </motion.div>
 
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 max-w-5xl mx-auto">
