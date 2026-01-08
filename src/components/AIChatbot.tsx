@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { MessageCircle, X, Send, Loader2, Bot, User } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Bot, User, Maximize2, Minimize2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 
@@ -13,6 +13,7 @@ interface Message {
 
 const AIChatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", content: "Hi! 👋 I'm your AI assistant. Ask me anything about our web development services, pricing, or process!" }
   ]);
@@ -126,7 +127,7 @@ const AIChatbot = () => {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             exit={{ scale: 0 }}
-            className="fixed bottom-24 right-6 z-50"
+            className="fixed bottom-6 right-6 z-50"
           >
             <Button
               onClick={() => setIsOpen(true)}
@@ -147,57 +148,73 @@ const AIChatbot = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-24 right-6 z-50 w-[350px] sm:w-[400px]"
+            className={`fixed z-50 ${
+              isFullScreen 
+                ? "inset-0 p-0" 
+                : "bottom-6 right-6 w-[90vw] sm:w-[400px] max-w-[400px]"
+            }`}
           >
-            <Card className="flex flex-col h-[500px] shadow-2xl border-2">
+            <Card className={`flex flex-col shadow-2xl border-2 ${
+              isFullScreen ? "h-full rounded-none" : "h-[70vh] max-h-[500px]"
+            }`}>
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-primary/10 to-purple-600/10">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-purple-600 flex items-center justify-center">
-                    <Bot className="w-5 h-5 text-white" />
+              <div className="flex items-center justify-between p-3 sm:p-4 border-b bg-gradient-to-r from-primary/10 to-purple-600/10">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-r from-primary to-purple-600 flex items-center justify-center">
+                    <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold">AI Assistant</h3>
-                    <p className="text-xs text-muted-foreground">Ask me anything</p>
+                    <h3 className="font-semibold text-sm sm:text-base">AI Assistant</h3>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">Ask me anything</p>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
-                  <X className="w-5 h-5" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => setIsFullScreen(!isFullScreen)}
+                    className="h-8 w-8"
+                  >
+                    {isFullScreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="h-8 w-8">
+                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </Button>
+                </div>
               </div>
 
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
                 {messages.map((message, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className={`flex gap-3 ${message.role === "user" ? "flex-row-reverse" : ""}`}
+                    className={`flex gap-2 sm:gap-3 ${message.role === "user" ? "flex-row-reverse" : ""}`}
                   >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                       message.role === "user" 
                         ? "bg-primary text-white" 
                         : "bg-gradient-to-r from-primary/20 to-purple-600/20"
                     }`}>
-                      {message.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                      {message.role === "user" ? <User className="w-3 h-3 sm:w-4 sm:h-4" /> : <Bot className="w-3 h-3 sm:w-4 sm:h-4" />}
                     </div>
-                    <div className={`max-w-[80%] p-3 rounded-2xl ${
+                    <div className={`max-w-[80%] p-2 sm:p-3 rounded-2xl ${
                       message.role === "user"
                         ? "bg-primary text-primary-foreground rounded-tr-sm"
                         : "bg-muted rounded-tl-sm"
                     }`}>
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                      <p className="text-xs sm:text-sm whitespace-pre-wrap">{message.content}</p>
                     </div>
                   </motion.div>
                 ))}
                 {isLoading && messages[messages.length - 1]?.content === "" && (
-                  <div className="flex gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary/20 to-purple-600/20 flex items-center justify-center">
-                      <Bot className="w-4 h-4" />
+                  <div className="flex gap-2 sm:gap-3">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-primary/20 to-purple-600/20 flex items-center justify-center">
+                      <Bot className="w-3 h-3 sm:w-4 sm:h-4" />
                     </div>
-                    <div className="bg-muted p-3 rounded-2xl rounded-tl-sm">
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                    <div className="bg-muted p-2 sm:p-3 rounded-2xl rounded-tl-sm">
+                      <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                     </div>
                   </div>
                 )}
@@ -205,16 +222,16 @@ const AIChatbot = () => {
               </div>
 
               {/* Input */}
-              <form onSubmit={handleSubmit} className="p-4 border-t">
+              <form onSubmit={handleSubmit} className="p-3 sm:p-4 border-t">
                 <div className="flex gap-2">
                   <Input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Type your message..."
                     disabled={isLoading}
-                    className="flex-1"
+                    className="flex-1 text-sm"
                   />
-                  <Button type="submit" size="icon" disabled={isLoading || !input.trim()}>
+                  <Button type="submit" size="icon" disabled={isLoading || !input.trim()} className="h-9 w-9 sm:h-10 sm:w-10">
                     {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   </Button>
                 </div>
