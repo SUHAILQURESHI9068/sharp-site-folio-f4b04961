@@ -130,7 +130,7 @@ const QuoteCalculator = () => {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-24 right-6 z-40 w-14 h-14 bg-secondary text-secondary-foreground rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
+        className="fixed bottom-24 right-6 z-50 w-14 h-14 bg-secondary text-secondary-foreground rounded-full shadow-lg flex items-center justify-center hover:shadow-xl transition-shadow"
         aria-label="Open Quote Calculator"
       >
         <Calculator className="w-6 h-6" />
