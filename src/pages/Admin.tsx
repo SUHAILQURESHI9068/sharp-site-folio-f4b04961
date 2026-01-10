@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Lock, Loader2, Mail, Calendar, Calculator, Users, BarChart3, FileText, Briefcase, MessageSquare, Eye, EyeOff, KeyRound } from "lucide-react";
+import { ArrowLeft, Lock, Loader2, Mail, Calendar, Calculator, Users, BarChart3, FileText, Briefcase, MessageSquare, Eye, EyeOff, KeyRound, Receipt } from "lucide-react";
 import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -18,6 +18,7 @@ import AdminAnalytics from "@/components/admin/AdminAnalytics";
 import BlogEditor from "@/components/admin/BlogEditor";
 import ClientProjectsManager from "@/components/admin/ClientProjectsManager";
 import TestimonialsManager from "@/components/admin/TestimonialsManager";
+import InvoiceManager from "@/components/admin/InvoiceManager";
 
 // Validation schemas
 const emailSchema = z.string().email("Please enter a valid email address");
@@ -413,7 +414,7 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="analytics" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-9 lg:w-auto lg:inline-grid">
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Analytics</span>
@@ -446,6 +447,10 @@ const Admin = () => {
               <Briefcase className="w-4 h-4" />
               <span className="hidden sm:inline">Clients</span>
             </TabsTrigger>
+            <TabsTrigger value="invoices" className="gap-2">
+              <Receipt className="w-4 h-4" />
+              <span className="hidden sm:inline">Invoices</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="analytics">
@@ -471,6 +476,9 @@ const Admin = () => {
           </TabsContent>
           <TabsContent value="clients">
             <ClientProjectsManager />
+          </TabsContent>
+          <TabsContent value="invoices">
+            <InvoiceManager />
           </TabsContent>
         </Tabs>
       </div>
