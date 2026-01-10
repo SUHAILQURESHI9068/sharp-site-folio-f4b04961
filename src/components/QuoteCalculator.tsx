@@ -27,9 +27,9 @@ const features = [
   { id: "social", name: "Social Media Integration", price: 1000 },
   { id: "payment", name: "Payment Gateway", price: 4000 },
   { id: "multilingual", name: "Multi-language", price: 3000 },
-  { id: "hosting", name: "1 Year Free Hosting", price: 2000 },
-  { id: "domain", name: "Free Domain (1 Year)", price: 1000 },
   { id: "maintenance", name: "3 Months Maintenance", price: 3000 },
+  { id: "whatsapp", name: "WhatsApp Chat Integration", price: 299 },
+  { id: "logo", name: "Basic Logo Design", price: 999 },
 ];
 
 const QuoteCalculator = () => {
