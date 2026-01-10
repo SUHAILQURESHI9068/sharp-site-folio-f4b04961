@@ -219,6 +219,77 @@ export type Database = {
         }
         Relationships: []
       }
+      invoices: {
+        Row: {
+          client_address: string | null
+          client_email: string
+          client_name: string
+          client_phone: string | null
+          created_at: string
+          due_date: string | null
+          id: string
+          invoice_number: string
+          items: Json
+          notes: string | null
+          paid_date: string | null
+          project_id: string | null
+          status: string
+          subtotal: number
+          tax_amount: number
+          tax_rate: number | null
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          client_address?: string | null
+          client_email: string
+          client_name: string
+          client_phone?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          invoice_number: string
+          items?: Json
+          notes?: string | null
+          paid_date?: string | null
+          project_id?: string | null
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          tax_rate?: number | null
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          client_address?: string | null
+          client_email?: string
+          client_name?: string
+          client_phone?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          invoice_number?: string
+          items?: Json
+          notes?: string | null
+          paid_date?: string | null
+          project_id?: string | null
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          tax_rate?: number | null
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "client_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meeting_bookings: {
         Row: {
           created_at: string
