@@ -78,6 +78,7 @@ const InvoiceManager = () => {
   const [projects, setProjects] = useState<ClientProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [sending, setSending] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -302,6 +303,33 @@ const InvoiceManager = () => {
   const openPreview = (invoice: Invoice) => {
     setPreviewInvoice(invoice);
     setPreviewOpen(true);
+  };
+
+  const sendInvoiceEmail = async (invoice: Invoice) => {
+    setSending(invoice.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('send-invoice', {
+        body: { invoice }
+      });
+
+      if (error) throw error;
+      
+      // Update status to sent if it was draft
+      if (invoice.status === 'draft') {
+        await supabase
+          .from('invoices')
+          .update({ status: 'sent' })
+          .eq('id', invoice.id);
+        fetchData();
+      }
+      
+      toast.success(`Invoice sent to ${invoice.client_email}`);
+    } catch (error: any) {
+      console.error('Error sending invoice:', error);
+      toast.error(error.message || 'Failed to send invoice');
+    } finally {
+      setSending(null);
+    }
   };
 
   const downloadPDF = (invoice: Invoice) => {
@@ -771,12 +799,25 @@ const InvoiceManager = () => {
                           <Button variant="ghost" size="sm" onClick={() => openPreview(invoice)} title="Preview">
                             <Eye className="w-4 h-4" />
                           </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => sendInvoiceEmail(invoice)} 
+                            disabled={sending === invoice.id}
+                            title="Send Email"
+                          >
+                            {sending === invoice.id ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Send className="w-4 h-4 text-primary" />
+                            )}
+                          </Button>
                           <Button variant="ghost" size="sm" onClick={() => downloadPDF(invoice)} title="Download PDF">
                             <Download className="w-4 h-4" />
                           </Button>
                           {invoice.status !== "paid" && (
-                            <Button variant="ghost" size="sm" onClick={() => markAsPaid(invoice)} title="Mark as Paid">
-                              <Check className="w-4 h-4 text-green-500" />
+                            <Button variant="ghost" size="sm" onClick={() => markAsPaid(invoice)} title="Mark as Paid" className="text-emerald-600 hover:text-emerald-700">
+                              <Check className="w-4 h-4" />
                             </Button>
                           )}
                           <Button variant="ghost" size="sm" onClick={() => openEditDialog(invoice)}>
@@ -869,10 +910,22 @@ const InvoiceManager = () => {
               </div>
 
               <div className="flex gap-2 pt-4 border-t">
-                <Button onClick={() => downloadPDF(previewInvoice)}>
+                <Button 
+                  onClick={() => sendInvoiceEmail(previewInvoice)} 
+                  disabled={sending === previewInvoice.id}
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  {sending === previewInvoice.id ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4 mr-2" />
+                  )}
+                  Send Invoice
+                </Button>
+                <Button variant="outline" onClick={() => downloadPDF(previewInvoice)}>
                   <Download className="w-4 h-4 mr-2" /> Download PDF
                 </Button>
-                <Button variant="outline" onClick={() => setPreviewOpen(false)}>
+                <Button variant="ghost" onClick={() => setPreviewOpen(false)}>
                   Close
                 </Button>
               </div>

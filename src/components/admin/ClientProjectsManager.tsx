@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import ClientDocuments from "./ClientDocuments";
 import MilestoneManager from "./MilestoneManager";
+import ProjectActivityLog from "./ProjectActivityLog";
 
 interface ClientProject {
   id: string;
@@ -779,6 +780,10 @@ const ClientProjectsManager = () => {
                   projectId={selectedProject.id} 
                   projectName={selectedProject.project_name}
                   clientEmail={selectedProject.client_email}
+                />
+                <ProjectActivityLog
+                  projectId={selectedProject.id}
+                  projectName={selectedProject.project_name}
                 />
                 <ClientDocuments 
                   projectId={selectedProject.id} 
