@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, FileText, Plus, Pencil, Trash2, Search, RefreshCw, Download, IndianRupee, Eye, Send, Check, X } from "lucide-react";
+import { Loader2, FileText, Plus, Pencil, Trash2, Search, RefreshCw, Download, IndianRupee, Eye, Send, Check, X, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -73,12 +73,19 @@ const statusOptions = [
   { value: "cancelled", label: "Cancelled", color: "bg-gray-400" },
 ];
 
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
 const InvoiceManager = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [projects, setProjects] = useState<ClientProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [sending, setSending] = useState<string | null>(null);
+  const [processingPayment, setProcessingPayment] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -329,6 +336,106 @@ const InvoiceManager = () => {
       toast.error(error.message || 'Failed to send invoice');
     } finally {
       setSending(null);
+    }
+  };
+
+  const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const initiatePayment = async (invoice: Invoice) => {
+    setProcessingPayment(invoice.id);
+    try {
+      // Load Razorpay script
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        throw new Error('Failed to load Razorpay SDK');
+      }
+
+      // Create order
+      const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
+        body: {
+          invoice_id: invoice.id,
+          amount: invoice.total,
+          receipt: invoice.invoice_number,
+          notes: {
+            client_name: invoice.client_name,
+            client_email: invoice.client_email,
+          }
+        }
+      });
+
+      if (error || !data?.success) {
+        throw new Error(data?.error || 'Failed to create payment order');
+      }
+
+      // Open Razorpay checkout
+      const options = {
+        key: data.key_id,
+        amount: data.amount,
+        currency: data.currency,
+        name: 'Invoice Payment',
+        description: `Payment for ${invoice.invoice_number}`,
+        order_id: data.order_id,
+        handler: async (response: any) => {
+          try {
+            // Verify payment
+            const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-razorpay-payment', {
+              body: {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                invoice_id: invoice.id,
+              }
+            });
+
+            if (verifyError || !verifyData?.success) {
+              throw new Error(verifyData?.error || 'Payment verification failed');
+            }
+
+            toast.success('Payment successful! Invoice marked as paid.');
+            fetchData();
+          } catch (err: any) {
+            console.error('Payment verification error:', err);
+            toast.error(err.message || 'Payment verification failed');
+          }
+        },
+        prefill: {
+          name: invoice.client_name,
+          email: invoice.client_email,
+          contact: invoice.client_phone || '',
+        },
+        theme: {
+          color: '#4F46E5',
+        },
+        modal: {
+          ondismiss: () => {
+            setProcessingPayment(null);
+          }
+        }
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.on('payment.failed', (response: any) => {
+        console.error('Payment failed:', response.error);
+        toast.error(`Payment failed: ${response.error.description}`);
+      });
+      razorpay.open();
+    } catch (error: any) {
+      console.error('Error initiating payment:', error);
+      toast.error(error.message || 'Failed to initiate payment');
+    } finally {
+      setProcessingPayment(null);
     }
   };
 
@@ -816,9 +923,25 @@ const InvoiceManager = () => {
                             <Download className="w-4 h-4" />
                           </Button>
                           {invoice.status !== "paid" && (
-                            <Button variant="ghost" size="sm" onClick={() => markAsPaid(invoice)} title="Mark as Paid" className="text-emerald-600 hover:text-emerald-700">
-                              <Check className="w-4 h-4" />
-                            </Button>
+                            <>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => initiatePayment(invoice)} 
+                                disabled={processingPayment === invoice.id}
+                                title="Pay Now"
+                                className="text-primary hover:text-primary"
+                              >
+                                {processingPayment === invoice.id ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <CreditCard className="w-4 h-4" />
+                                )}
+                              </Button>
+                              <Button variant="ghost" size="sm" onClick={() => markAsPaid(invoice)} title="Mark as Paid" className="text-emerald-600 hover:text-emerald-700">
+                                <Check className="w-4 h-4" />
+                              </Button>
+                            </>
                           )}
                           <Button variant="ghost" size="sm" onClick={() => openEditDialog(invoice)}>
                             <Pencil className="w-4 h-4" />
@@ -909,11 +1032,25 @@ const InvoiceManager = () => {
                 </div>
               </div>
 
-              <div className="flex gap-2 pt-4 border-t">
+              <div className="flex gap-2 pt-4 border-t flex-wrap">
+                {previewInvoice.status !== 'paid' && (
+                  <Button 
+                    onClick={() => initiatePayment(previewInvoice)} 
+                    disabled={processingPayment === previewInvoice.id}
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    {processingPayment === previewInvoice.id ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      <CreditCard className="w-4 h-4 mr-2" />
+                    )}
+                    Pay Now
+                  </Button>
+                )}
                 <Button 
+                  variant="outline"
                   onClick={() => sendInvoiceEmail(previewInvoice)} 
                   disabled={sending === previewInvoice.id}
-                  className="bg-primary hover:bg-primary/90"
                 >
                   {sending === previewInvoice.id ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
