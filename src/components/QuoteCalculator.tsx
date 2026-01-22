@@ -1,12 +1,18 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calculator, Check, ArrowRight, X, Loader2 } from "lucide-react";
+import { Calculator, Check, ArrowRight, X, Loader2, CreditCard } from "lucide-react";
 import { Button } from "./ui/button";
 import { Checkbox } from "./ui/checkbox";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 const projectTypes = [
   { id: "landing", name: "Landing Page", basePrice: 3000, description: "Single page with sections" },
@@ -37,9 +43,10 @@ const QuoteCalculator = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>(["responsive"]);
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "" });
 
   const calculateTotal = () => {
     const typePrice = projectTypes.find(t => t.id === selectedType)?.basePrice || 0;
@@ -65,6 +72,146 @@ const QuoteCalculator = () => {
       currency: "INR",
       maximumFractionDigits: 0,
     }).format(price);
+  };
+
+  const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handlePayNow = async () => {
+    if (!formData.name || !formData.email) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in your name and email",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsProcessingPayment(true);
+
+    try {
+      // Load Razorpay script
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        throw new Error('Failed to load Razorpay SDK');
+      }
+
+      const total = calculateTotal();
+      const projectTypeName = projectTypes.find(t => t.id === selectedType)?.name || "Custom Project";
+
+      // Save quote request first
+      const { data: quoteData, error: quoteError } = await supabase
+        .from("quote_requests")
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          project_type: projectTypeName,
+          features: selectedFeatures,
+          estimated_price: total,
+          message: formData.message || null,
+        })
+        .select()
+        .single();
+
+      if (quoteError) throw quoteError;
+
+      // Create Razorpay order
+      const { data: orderData, error: orderError } = await supabase.functions.invoke('create-razorpay-order', {
+        body: {
+          invoice_id: quoteData.id,
+          amount: total,
+          currency: 'INR',
+          receipt: `quote_${quoteData.id.slice(0, 8)}`,
+          notes: {
+            quote_id: quoteData.id,
+            project_type: projectTypeName,
+            client_name: formData.name,
+            client_email: formData.email,
+          }
+        }
+      });
+
+      if (orderError || !orderData?.success) {
+        throw new Error(orderData?.error || 'Failed to create order');
+      }
+
+      // Open Razorpay checkout
+      const options = {
+        key: orderData.key_id,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'MorzenX',
+        description: `${projectTypeName} - Web Development`,
+        order_id: orderData.order_id,
+        prefill: {
+          name: formData.name,
+          email: formData.email,
+          contact: formData.phone || '',
+        },
+        theme: {
+          color: '#7c3aed',
+        },
+        handler: async function (response: any) {
+          // Payment successful
+          toast({
+            title: "Payment Successful! 🎉",
+            description: "Thank you for your order! We'll contact you within 24 hours to start your project.",
+          });
+
+          // Send notification
+          supabase.functions.invoke("send-notification", {
+            body: { 
+              type: "payment", 
+              data: {
+                name: formData.name,
+                email: formData.email,
+                project_type: projectTypeName,
+                amount: total,
+                payment_id: response.razorpay_payment_id,
+              }
+            },
+          }).catch(console.error);
+
+          setIsOpen(false);
+          resetForm();
+        },
+        modal: {
+          ondismiss: function() {
+            setIsProcessingPayment(false);
+          }
+        }
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast({
+        title: "Payment Failed",
+        description: "Failed to initiate payment. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
+  const resetForm = () => {
+    setStep(1);
+    setSelectedType(null);
+    setSelectedFeatures(["responsive"]);
+    setFormData({ name: "", email: "", phone: "", message: "" });
   };
 
   const handleSubmitQuote = async (e: React.FormEvent) => {
@@ -105,10 +252,7 @@ const QuoteCalculator = () => {
         description: "I'll get back to you with a detailed quote soon.",
       });
       setIsOpen(false);
-      setStep(1);
-      setSelectedType(null);
-      setSelectedFeatures(["responsive"]);
-      setFormData({ name: "", email: "", message: "" });
+      resetForm();
     } catch (error) {
       console.error("Error submitting quote:", error);
       toast({
@@ -156,7 +300,7 @@ const QuoteCalculator = () => {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h3 className="text-2xl font-bold">Project Quote Calculator</h3>
-                  <p className="text-muted-foreground text-sm">Get an instant estimate for your project</p>
+                  <p className="text-muted-foreground text-sm">Get an instant estimate & pay directly</p>
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
@@ -246,29 +390,35 @@ const QuoteCalculator = () => {
                     onClick={() => setStep(2)}
                     disabled={!selectedType}
                   >
-                    Get Detailed Quote
+                    Continue to Payment
                     <ArrowRight className="ml-2 w-4 h-4" />
                   </Button>
                 </div>
               )}
 
-              {/* Step 2: Contact Form */}
+              {/* Step 2: Contact Form & Payment */}
               {step === 2 && (
-                <form onSubmit={handleSubmitQuote} className="border-t border-border pt-6">
+                <div className="border-t border-border pt-6">
                   <h4 className="font-semibold mb-4">3. Your Contact Details</h4>
                   <div className="space-y-4 mb-6">
                     <Input
-                      placeholder="Your Name"
+                      placeholder="Your Name *"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
                     />
                     <Input
                       type="email"
-                      placeholder="Your Email"
+                      placeholder="Your Email *"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       required
+                    />
+                    <Input
+                      type="tel"
+                      placeholder="Your Phone Number (optional)"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     />
                     <Textarea
                       placeholder="Additional details about your project (optional)"
@@ -277,22 +427,73 @@ const QuoteCalculator = () => {
                       rows={3}
                     />
                   </div>
-                  <div className="bg-muted/50 rounded-lg p-4 mb-4">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">Estimated Total:</span>
-                      <span className="text-xl font-bold gradient-text">{formatPrice(calculateTotal())}</span>
+
+                  {/* Price Summary */}
+                  <div className="bg-muted/50 rounded-lg p-4 mb-6">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-muted-foreground">Project Type:</span>
+                      <span className="font-medium">{projectTypes.find(t => t.id === selectedType)?.name}</span>
+                    </div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-muted-foreground">Selected Features:</span>
+                      <span className="font-medium">{selectedFeatures.length}</span>
+                    </div>
+                    <div className="border-t border-border pt-2 mt-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold">Total Amount:</span>
+                        <span className="text-2xl font-bold gradient-text">{formatPrice(calculateTotal())}</span>
+                      </div>
                     </div>
                   </div>
-                  <div className="flex gap-3">
-                    <Button type="button" variant="outline" onClick={() => setStep(1)}>
-                      Back
+
+                  <div className="flex flex-col gap-3">
+                    {/* Pay Now Button */}
+                    <Button 
+                      onClick={handlePayNow}
+                      className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90" 
+                      size="lg"
+                      disabled={isProcessingPayment || !formData.name || !formData.email}
+                    >
+                      {isProcessingPayment ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <CreditCard className="mr-2 h-4 w-4" />
+                      )}
+                      {isProcessingPayment ? "Processing..." : `Pay ${formatPrice(calculateTotal())} Now`}
                     </Button>
-                    <Button type="submit" className="flex-1" disabled={isSubmitting}>
-                      {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                      {isSubmitting ? "Sending..." : "Submit Quote Request"}
+
+                    {/* Or Divider */}
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-border"></div>
+                      </div>
+                      <div className="relative flex justify-center text-xs">
+                        <span className="bg-background px-2 text-muted-foreground">or</span>
+                      </div>
+                    </div>
+
+                    {/* Request Quote Button */}
+                    <form onSubmit={handleSubmitQuote}>
+                      <Button 
+                        type="submit" 
+                        variant="outline"
+                        className="w-full" 
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        {isSubmitting ? "Sending..." : "Just Request Quote (No Payment)"}
+                      </Button>
+                    </form>
+
+                    <Button type="button" variant="ghost" onClick={() => setStep(1)}>
+                      ← Back to Selection
                     </Button>
                   </div>
-                </form>
+
+                  <p className="text-xs text-center text-muted-foreground mt-4">
+                    🔒 Secure payment powered by Razorpay. 50% advance payment to start the project.
+                  </p>
+                </div>
               )}
             </motion.div>
           </motion.div>
