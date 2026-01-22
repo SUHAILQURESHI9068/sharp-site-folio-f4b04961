@@ -9,9 +9,17 @@ const corsHeaders = {
 };
 
 interface NotificationRequest {
-  type: "contact" | "meeting" | "quote" | "newsletter";
+  type: "contact" | "meeting" | "quote" | "newsletter" | "payment";
   data: Record<string, any>;
 }
+
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
@@ -68,6 +76,26 @@ const handler = async (req: Request): Promise<Response> => {
         htmlContent = `
           <h2>New Newsletter Subscription</h2>
           <p><strong>Email:</strong> ${data.email}</p>
+        `;
+        break;
+
+      case "payment":
+        subject = `🎉 Payment Received: ${formatCurrency(data.amount)} from ${data.name}`;
+        htmlContent = `
+          <h2 style="color: #22c55e;">🎉 Payment Received!</h2>
+          <div style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p style="font-size: 24px; font-weight: bold; color: #16a34a; margin: 0;">
+              ${formatCurrency(data.amount)}
+            </p>
+          </div>
+          <p><strong>Client Name:</strong> ${data.name}</p>
+          <p><strong>Client Email:</strong> ${data.email}</p>
+          <p><strong>Project Type:</strong> ${data.project_type}</p>
+          <p><strong>Payment ID:</strong> ${data.payment_id}</p>
+          <hr style="margin: 20px 0; border: none; border-top: 1px solid #e5e7eb;" />
+          <p style="color: #6b7280; font-size: 14px;">
+            Please reach out to the client within 24 hours to start the project.
+          </p>
         `;
         break;
 
