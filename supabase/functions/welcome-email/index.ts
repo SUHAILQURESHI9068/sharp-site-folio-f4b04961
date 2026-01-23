@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -8,12 +9,24 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface WelcomeEmailRequest {
-  type: "client_signup" | "project_created";
-  clientEmail: string;
-  clientName?: string;
-  projectName?: string;
-}
+// HTML escape function to prevent XSS
+const escapeHtml = (unsafe: string): string => {
+  if (typeof unsafe !== 'string') return String(unsafe || '');
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+};
+
+// Input validation schema
+const WelcomeEmailRequestSchema = z.object({
+  type: z.enum(["client_signup", "project_created"]),
+  clientEmail: z.string().email().max(255),
+  clientName: z.string().max(200).optional(),
+  projectName: z.string().max(200).optional(),
+});
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
@@ -21,7 +34,12 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { type, clientEmail, clientName, projectName }: WelcomeEmailRequest = await req.json();
+    const rawBody = await req.json();
+    
+    // Validate input
+    const validatedData = WelcomeEmailRequestSchema.parse(rawBody);
+    const { type, clientEmail, clientName, projectName } = validatedData;
+    
     console.log("Received welcome email request:", type, clientEmail);
 
     let subject = "";
@@ -32,7 +50,7 @@ const handler = async (req: Request): Promise<Response> => {
         subject = "Welcome to Morzen Portfolio!";
         htmlContent = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h1 style="color: #8b5cf6;">Welcome${clientName ? `, ${clientName}` : ""}!</h1>
+            <h1 style="color: #8b5cf6;">Welcome${clientName ? `, ${escapeHtml(clientName)}` : ""}!</h1>
             <p>Thank you for signing up. We're excited to have you on board!</p>
             <p>You can now:</p>
             <ul>
@@ -48,11 +66,11 @@ const handler = async (req: Request): Promise<Response> => {
         break;
 
       case "project_created":
-        subject = `Your Project "${projectName}" Has Been Created!`;
+        subject = `Your Project "${projectName ? escapeHtml(projectName) : 'New Project'}" Has Been Created!`;
         htmlContent = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h1 style="color: #8b5cf6;">Project Created!</h1>
-            <p>Great news! Your project <strong>"${projectName}"</strong> has been set up.</p>
+            <p>Great news! Your project <strong>"${projectName ? escapeHtml(projectName) : 'New Project'}"</strong> has been set up.</p>
             <p>Here's what happens next:</p>
             <ol>
               <li>Our team will begin the initial planning phase</li>
@@ -82,10 +100,23 @@ const handler = async (req: Request): Promise<Response> => {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error sending welcome email:", error);
+    
+    // Handle Zod validation errors
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ error: "Invalid input data", details: error.errors }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+    
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

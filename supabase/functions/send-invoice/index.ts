@@ -1,32 +1,51 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface InvoiceItem {
-  description: string;
-  quantity: number;
-  rate: number;
-  amount: number;
-}
+// HTML escape function to prevent XSS
+const escapeHtml = (unsafe: string): string => {
+  if (typeof unsafe !== 'string') return String(unsafe || '');
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+};
 
-interface InvoiceData {
-  invoice_number: string;
-  client_name: string;
-  client_email: string;
-  client_phone?: string;
-  client_address?: string;
-  items: InvoiceItem[];
-  subtotal: number;
-  tax_rate: number;
-  tax_amount: number;
-  total: number;
-  due_date?: string;
-  notes?: string;
-  created_at: string;
-}
+// Validation schemas
+const InvoiceItemSchema = z.object({
+  description: z.string().min(1).max(500),
+  quantity: z.number().positive().max(10000),
+  rate: z.number().nonnegative().max(100000000),
+  amount: z.number().nonnegative().max(100000000),
+});
+
+const InvoiceDataSchema = z.object({
+  invoice_number: z.string().min(1).max(50),
+  client_name: z.string().min(1).max(200),
+  client_email: z.string().email().max(255),
+  client_phone: z.string().max(20).optional(),
+  client_address: z.string().max(500).optional(),
+  items: z.array(InvoiceItemSchema).min(1).max(100),
+  subtotal: z.number().nonnegative().max(100000000),
+  tax_rate: z.number().nonnegative().max(100),
+  tax_amount: z.number().nonnegative().max(100000000),
+  total: z.number().nonnegative().max(100000000),
+  due_date: z.string().max(50).optional(),
+  notes: z.string().max(2000).optional(),
+  created_at: z.string().min(1).max(50),
+});
+
+const SendInvoiceRequestSchema = z.object({
+  invoice: InvoiceDataSchema,
+  from_email: z.string().email().max(255).optional(),
+  from_name: z.string().max(100).optional(),
+});
 
 const formatCurrency = (amount: number) => {
   return `₹${amount.toLocaleString('en-IN')}`;
@@ -41,10 +60,10 @@ const formatDate = (dateStr: string) => {
   });
 };
 
-const generateInvoiceHTML = (invoice: InvoiceData) => {
+const generateInvoiceHTML = (invoice: z.infer<typeof InvoiceDataSchema>) => {
   const itemsHTML = invoice.items.map(item => `
     <tr>
-      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB;">${item.description}</td>
+      <td style="padding: 12px; border-bottom: 1px solid #E5E7EB;">${escapeHtml(item.description)}</td>
       <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: center;">${item.quantity}</td>
       <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: right;">${formatCurrency(item.rate)}</td>
       <td style="padding: 12px; border-bottom: 1px solid #E5E7EB; text-align: right;">${formatCurrency(item.amount)}</td>
@@ -57,14 +76,14 @@ const generateInvoiceHTML = (invoice: InvoiceData) => {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Invoice ${invoice.invoice_number}</title>
+      <title>Invoice ${escapeHtml(invoice.invoice_number)}</title>
     </head>
     <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
       <div style="background: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; border-bottom: 2px solid #4F46E5; padding-bottom: 20px;">
           <div>
             <h1 style="margin: 0; font-size: 28px; color: #4F46E5;">INVOICE</h1>
-            <p style="margin: 5px 0 0; color: #6B7280;">${invoice.invoice_number}</p>
+            <p style="margin: 5px 0 0; color: #6B7280;">${escapeHtml(invoice.invoice_number)}</p>
           </div>
           <div style="text-align: right;">
             <p style="margin: 0; color: #374151;"><strong>Date:</strong> ${formatDate(invoice.created_at)}</p>
@@ -74,10 +93,10 @@ const generateInvoiceHTML = (invoice: InvoiceData) => {
 
         <div style="margin-bottom: 30px;">
           <h3 style="margin: 0 0 10px; color: #374151; font-size: 14px; text-transform: uppercase;">Bill To:</h3>
-          <p style="margin: 0; font-weight: bold; font-size: 16px; color: #111827;">${invoice.client_name}</p>
-          <p style="margin: 5px 0; color: #6B7280;">${invoice.client_email}</p>
-          ${invoice.client_phone ? `<p style="margin: 5px 0; color: #6B7280;">${invoice.client_phone}</p>` : ''}
-          ${invoice.client_address ? `<p style="margin: 5px 0; color: #6B7280;">${invoice.client_address}</p>` : ''}
+          <p style="margin: 0; font-weight: bold; font-size: 16px; color: #111827;">${escapeHtml(invoice.client_name)}</p>
+          <p style="margin: 5px 0; color: #6B7280;">${escapeHtml(invoice.client_email)}</p>
+          ${invoice.client_phone ? `<p style="margin: 5px 0; color: #6B7280;">${escapeHtml(invoice.client_phone)}</p>` : ''}
+          ${invoice.client_address ? `<p style="margin: 5px 0; color: #6B7280;">${escapeHtml(invoice.client_address)}</p>` : ''}
         </div>
 
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
@@ -112,7 +131,7 @@ const generateInvoiceHTML = (invoice: InvoiceData) => {
         ${invoice.notes ? `
           <div style="background: #F9FAFB; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
             <p style="margin: 0 0 5px; font-weight: bold; color: #374151;">Notes:</p>
-            <p style="margin: 0; color: #6B7280;">${invoice.notes}</p>
+            <p style="margin: 0; color: #6B7280;">${escapeHtml(invoice.notes)}</p>
           </div>
         ` : ''}
 
@@ -142,14 +161,11 @@ serve(async (req) => {
       );
     }
 
-    const { invoice, from_email, from_name } = await req.json();
+    const rawBody = await req.json();
     
-    if (!invoice || !invoice.client_email) {
-      return new Response(
-        JSON.stringify({ error: 'Invoice data and client email are required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    // Validate input
+    const validatedData = SendInvoiceRequestSchema.parse(rawBody);
+    const { invoice, from_email } = validatedData;
 
     console.log(`Sending invoice ${invoice.invoice_number} to ${invoice.client_email}`);
 
@@ -164,7 +180,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: from_email || 'invoices@resend.dev',
         to: [invoice.client_email],
-        subject: `Invoice ${invoice.invoice_number} - ${formatCurrency(invoice.total)}`,
+        subject: `Invoice ${escapeHtml(invoice.invoice_number)} - ${formatCurrency(invoice.total)}`,
         html: emailHTML,
       }),
     });
@@ -188,6 +204,15 @@ serve(async (req) => {
 
   } catch (error: unknown) {
     console.error('Error sending invoice:', error);
+    
+    // Handle Zod validation errors
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid input data', details: error.errors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     const errorMessage = error instanceof Error ? error.message : 'Internal server error';
     return new Response(
       JSON.stringify({ error: errorMessage }),
