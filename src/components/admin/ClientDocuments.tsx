@@ -13,6 +13,7 @@ interface Document {
   id: string;
   name: string;
   file_url: string;
+  file_path?: string;
   file_type: string | null;
   uploaded_at: string;
 }
@@ -77,18 +78,13 @@ const ClientDocuments = ({ projectId, projectName }: ClientDocumentsProps) => {
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from("client-documents")
-        .getPublicUrl(filePath);
-
-      // Save to database
+      // Save file path to database (not public URL since bucket is private)
       const { error: dbError } = await supabase
         .from("client_documents")
         .insert([{
           project_id: projectId,
           name: fileName,
-          file_url: urlData.publicUrl,
+          file_url: filePath, // Store the file path for signed URL generation
           file_type: selectedFile.type,
         }]);
 
@@ -100,7 +96,6 @@ const ClientDocuments = ({ projectId, projectName }: ClientDocumentsProps) => {
       setSelectedFile(null);
       fetchDocuments();
     } catch (error: any) {
-      console.error("Upload error:", error);
       toast.error("Failed to upload document");
     } finally {
       setUploading(false);
@@ -134,8 +129,22 @@ const ClientDocuments = ({ projectId, projectName }: ClientDocumentsProps) => {
     }
   };
 
-  const downloadDocument = (doc: Document) => {
-    window.open(doc.file_url, "_blank");
+  const downloadDocument = async (doc: Document) => {
+    try {
+      // Generate a signed URL for secure, time-limited access
+      const { data, error } = await supabase.storage
+        .from("client-documents")
+        .createSignedUrl(doc.file_url, 3600); // 1 hour expiry
+
+      if (error || !data) {
+        toast.error("Failed to generate download link");
+        return;
+      }
+
+      window.open(data.signedUrl, "_blank");
+    } catch (error) {
+      toast.error("Failed to download document");
+    }
   };
 
   const getFileIcon = (fileType: string | null) => {

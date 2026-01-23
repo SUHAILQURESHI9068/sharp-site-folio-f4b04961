@@ -55,9 +55,11 @@ const TestimonialsSection = () => {
 
   useEffect(() => {
     const fetchTestimonials = async () => {
+      // Query from the testimonials_public view which excludes email for privacy
+      // The view only contains: id, name, company, role, content, rating, avatar_url, is_featured, created_at
       const { data, error } = await supabase
         .from("testimonials")
-        .select("*")
+        .select("id, name, company, role, content, rating, avatar_url, is_featured, created_at")
         .eq("is_approved", true)
         .order("is_featured", { ascending: false })
         .order("created_at", { ascending: false })
