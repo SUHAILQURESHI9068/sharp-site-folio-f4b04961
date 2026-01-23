@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+import logoIcon from "@/assets/morzen-logo.png";
 
 const PageLoader = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -34,8 +35,15 @@ const PageLoader = () => {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="mb-8"
+            className="mb-8 flex items-center gap-3"
           >
+            <motion.img 
+              src={logoIcon} 
+              alt="Morzen" 
+              className="w-12 h-12 md:w-16 md:h-16"
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            />
             <span className="text-4xl md:text-5xl font-bold">
               <span className="gradient-text">Morzen</span>
             </span>
