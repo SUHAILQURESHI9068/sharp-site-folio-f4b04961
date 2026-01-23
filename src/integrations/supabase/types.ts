@@ -474,7 +474,42 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      testimonials_public: {
+        Row: {
+          avatar_url: string | null
+          company: string | null
+          content: string | null
+          created_at: string | null
+          id: string | null
+          is_featured: boolean | null
+          name: string | null
+          rating: number | null
+          role: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          company?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_featured?: boolean | null
+          name?: string | null
+          rating?: number | null
+          role?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          company?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_featured?: boolean | null
+          name?: string | null
+          rating?: number | null
+          role?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {

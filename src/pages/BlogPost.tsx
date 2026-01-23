@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Calendar, Clock, ArrowLeft, Share2, Twitter, Linkedin, Facebook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import DOMPurify from "dompurify";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -189,7 +190,18 @@ const BlogPostPage = () => {
             {/* Content */}
             <div 
               className="prose prose-lg dark:prose-invert max-w-none mb-12"
-              dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br />').replace(/## /g, '<h2 class="text-2xl font-bold mt-8 mb-4">').replace(/### /g, '<h3 class="text-xl font-semibold mt-6 mb-3">') }}
+              dangerouslySetInnerHTML={{ 
+                __html: DOMPurify.sanitize(
+                  post.content
+                    .replace(/\n/g, '<br />')
+                    .replace(/## /g, '<h2 class="text-2xl font-bold mt-8 mb-4">')
+                    .replace(/### /g, '<h3 class="text-xl font-semibold mt-6 mb-3">'),
+                  { 
+                    ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'img', 'blockquote', 'code', 'pre', 'span', 'div'],
+                    ALLOWED_ATTR: ['href', 'src', 'alt', 'class', 'target', 'rel']
+                  }
+                )
+              }}
             />
 
             {/* Share Section */}
