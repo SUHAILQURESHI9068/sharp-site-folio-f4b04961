@@ -1,17 +1,19 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface PaymentVerification {
-  razorpay_order_id: string;
-  razorpay_payment_id: string;
-  razorpay_signature: string;
-  invoice_id: string;
-}
+// Input validation schema
+const PaymentVerificationSchema = z.object({
+  razorpay_order_id: z.string().min(1).max(100).regex(/^order_[a-zA-Z0-9]+$/, 'Invalid order ID format'),
+  razorpay_payment_id: z.string().min(1).max(100).regex(/^pay_[a-zA-Z0-9]+$/, 'Invalid payment ID format'),
+  razorpay_signature: z.string().min(1).max(200).regex(/^[a-f0-9]+$/, 'Invalid signature format'),
+  invoice_id: z.string().uuid('Invalid invoice ID format'),
+});
 
 // HMAC SHA256 signature verification
 async function verifySignature(
@@ -56,12 +58,11 @@ serve(async (req) => {
       throw new Error('Supabase credentials not configured');
     }
 
-    const { 
-      razorpay_order_id, 
-      razorpay_payment_id, 
-      razorpay_signature, 
-      invoice_id 
-    }: PaymentVerification = await req.json();
+    const rawBody = await req.json();
+    
+    // Validate input
+    const validatedData = PaymentVerificationSchema.parse(rawBody);
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, invoice_id } = validatedData;
 
     console.log(`Verifying payment for invoice: ${invoice_id}, payment: ${razorpay_payment_id}`);
 
@@ -110,10 +111,23 @@ serve(async (req) => {
         status: 200,
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error verifying payment:', error);
+    
+    // Handle Zod validation errors
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid input', details: error.errors }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
+    }
+    
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: errorMessage }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,

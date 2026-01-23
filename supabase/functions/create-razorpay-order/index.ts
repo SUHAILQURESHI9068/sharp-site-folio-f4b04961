@@ -1,17 +1,19 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface OrderRequest {
-  invoice_id: string;
-  amount: number;
-  currency?: string;
-  receipt?: string;
-  notes?: Record<string, string>;
-}
+// Input validation schema
+const OrderRequestSchema = z.object({
+  invoice_id: z.string().min(1).max(100),
+  amount: z.number().positive().max(10000000, 'Amount too large (max 1 crore)'),
+  currency: z.enum(['INR', 'USD']).default('INR'),
+  receipt: z.string().max(40).optional(),
+  notes: z.record(z.string().max(500)).optional(),
+});
 
 serve(async (req) => {
   // Handle CORS preflight
@@ -28,11 +30,11 @@ serve(async (req) => {
       throw new Error('Razorpay credentials not configured');
     }
 
-    const { invoice_id, amount, currency = 'INR', receipt, notes }: OrderRequest = await req.json();
-
-    if (!amount || amount <= 0) {
-      throw new Error('Invalid amount');
-    }
+    const rawBody = await req.json();
+    
+    // Validate input
+    const validatedData = OrderRequestSchema.parse(rawBody);
+    const { invoice_id, amount, currency, receipt, notes } = validatedData;
 
     // Razorpay expects amount in paise (smallest currency unit)
     const amountInPaise = Math.round(amount * 100);
@@ -51,7 +53,7 @@ serve(async (req) => {
       body: JSON.stringify({
         amount: amountInPaise,
         currency,
-        receipt: receipt || `receipt_${invoice_id}`,
+        receipt: receipt || `receipt_${invoice_id}`.substring(0, 40),
         notes: {
           invoice_id,
           ...notes,
@@ -81,10 +83,23 @@ serve(async (req) => {
         status: 200,
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating Razorpay order:', error);
+    
+    // Handle Zod validation errors
+    if (error instanceof z.ZodError) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid input', details: error.errors }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400,
+        }
+      );
+    }
+    
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: errorMessage }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
