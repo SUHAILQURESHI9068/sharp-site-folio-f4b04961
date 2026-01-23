@@ -48,12 +48,14 @@ const CTASection = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="xl" variant="gradient" className="group">
-              Start Your Project
-              <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+            <Button size="xl" variant="gradient" className="group" asChild>
+              <a href="#contact">
+                Start Your Project
+                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+              </a>
             </Button>
-            <Button size="xl" variant="outline">
-              View Pricing
+            <Button size="xl" variant="outline" asChild>
+              <a href="#pricing">View Pricing</a>
             </Button>
           </div>
         </motion.div>
