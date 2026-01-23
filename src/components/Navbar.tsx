@@ -3,6 +3,7 @@ import { Menu, X, Circle } from "lucide-react";
 import { Button } from "./ui/button";
 import ThemeToggle from "./ThemeToggle";
 import { Link } from "react-router-dom";
+import logoIcon from "@/assets/morzen-logo.png";
 
 const navLinks = [
   { href: "#home", label: "Home" },
@@ -21,7 +22,8 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-14 md:h-20">
           <div className="flex items-center gap-2 md:gap-3">
-            <a href="#home" className="text-lg md:text-2xl font-bold">
+            <a href="#home" className="flex items-center gap-2 text-lg md:text-2xl font-bold">
+              <img src={logoIcon} alt="Morzen" className="w-7 h-7 md:w-9 md:h-9" />
               <span className="gradient-text">Morzen</span>
             </a>
             <div className={`hidden sm:flex items-center gap-1 md:gap-1.5 px-2 md:px-2.5 py-0.5 md:py-1 rounded-full text-[10px] md:text-xs font-medium ${
