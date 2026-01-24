@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Github, Linkedin, Twitter, Instagram, Mail, MapPin, Phone, Send, Loader2 } from "lucide-react";
+import { Linkedin, Instagram, Facebook, Mail, MapPin, Phone, Send, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -63,7 +63,9 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { icon: Linkedin, href: "#", label: "LinkedIn" }, // TODO: Add your LinkedIn URL
+    { icon: Linkedin, href: "https://www.linkedin.com/in/suhail-qureshi-9694a32a8", label: "LinkedIn" },
+    { icon: Instagram, href: "https://www.instagram.com/suhail.founder", label: "Instagram" },
+    { icon: Facebook, href: "https://www.facebook.com/share/1BRY3caUyH/", label: "Facebook" },
   ];
 
   return (
