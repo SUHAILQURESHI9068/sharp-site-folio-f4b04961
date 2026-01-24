@@ -24,10 +24,12 @@ import PageLoader from "@/components/PageLoader";
 import ScrollProgress from "@/components/ScrollProgress";
 import AIChatbot from "@/components/AIChatbot";
 import ExitIntentPopup from "@/components/ExitIntentPopup";
+import StructuredData from "@/components/StructuredData";
 
 const Index = () => {
   return (
     <>
+      <StructuredData />
       <PageLoader />
       <ScrollProgress />
       <main className="min-h-screen bg-background relative">
