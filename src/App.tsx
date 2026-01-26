@@ -9,6 +9,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import ClientPortal from "./pages/ClientPortal";
 import Contact from "./pages/Contact";
+import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 import GoogleAnalytics from "./components/GoogleAnalytics";
 
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/admin" element={<Admin />} />
           <Route path="/portal" element={<ClientPortal />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/install" element={<Install />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
