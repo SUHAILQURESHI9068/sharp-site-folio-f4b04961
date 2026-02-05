@@ -15,27 +15,27 @@ declare global {
 }
 
 const projectTypes = [
-  { id: "landing", name: "Landing Page", basePrice: 3000, description: "Single page with sections" },
-  { id: "portfolio", name: "Portfolio Website", basePrice: 5000, description: "Showcase your work" },
-  { id: "business", name: "Business Website", basePrice: 8000, description: "5-10 pages with features" },
-  { id: "ecommerce", name: "E-commerce Store", basePrice: 15000, description: "Online store with products" },
-  { id: "webapp", name: "Web Application", basePrice: 25000, description: "Custom functionality" },
-  { id: "custom", name: "Custom Project", basePrice: 10000, description: "Tailored to your needs" },
+  { id: "landing", name: "Landing Page", basePrice: 15000, description: "Single page with sections" },
+  { id: "portfolio", name: "Portfolio Website", basePrice: 25000, description: "Professional showcase" },
+  { id: "business", name: "Business Website", basePrice: 35000, description: "5-10 pages with features" },
+  { id: "ecommerce", name: "E-commerce Store", basePrice: 65000, description: "Full online store" },
+  { id: "webapp", name: "Web Application", basePrice: 120000, description: "Custom SaaS/Dashboard" },
+  { id: "custom", name: "Custom Project", basePrice: 50000, description: "Tailored to your needs" },
 ];
 
 const features = [
   { id: "responsive", name: "Mobile Responsive", price: 0, included: true },
-  { id: "seo", name: "SEO Optimization", price: 1500 },
-  { id: "cms", name: "Admin Panel / CMS", price: 3000 },
-  { id: "animations", name: "Custom Animations", price: 2000 },
-  { id: "forms", name: "Contact Forms", price: 1000 },
-  { id: "analytics", name: "Google Analytics", price: 500 },
-  { id: "social", name: "Social Media Integration", price: 1000 },
-  { id: "payment", name: "Payment Gateway", price: 4000 },
-  { id: "multilingual", name: "Multi-language", price: 3000 },
-  { id: "maintenance", name: "3 Months Maintenance", price: 3000 },
-  { id: "whatsapp", name: "WhatsApp Chat Integration", price: 299 },
-  { id: "logo", name: "Basic Logo Design", price: 999 },
+  { id: "seo", name: "SEO Optimization", price: 5000 },
+  { id: "cms", name: "Admin Panel / CMS", price: 15000 },
+  { id: "animations", name: "Custom Animations", price: 8000 },
+  { id: "forms", name: "Contact Forms", price: 3000 },
+  { id: "analytics", name: "Google Analytics Setup", price: 2000 },
+  { id: "social", name: "Social Media Integration", price: 3000 },
+  { id: "payment", name: "Payment Gateway", price: 12000 },
+  { id: "auth", name: "User Authentication", price: 10000 },
+  { id: "database", name: "Supabase Backend", price: 15000 },
+  { id: "maintenance", name: "3 Months Maintenance", price: 10000 },
+  { id: "priority", name: "Priority 24/7 Support", price: 15000 },
 ];
 
 const QuoteCalculator = () => {
