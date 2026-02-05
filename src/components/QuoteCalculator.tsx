@@ -15,12 +15,12 @@ declare global {
 }
 
 const projectTypes = [
-  { id: "landing", name: "Landing Page", basePrice: 3000, description: "Single page with sections" },
-  { id: "portfolio", name: "Portfolio Website", basePrice: 5000, description: "Showcase your work" },
-  { id: "business", name: "Business Website", basePrice: 8000, description: "5-10 pages with features" },
-  { id: "ecommerce", name: "E-commerce Store", basePrice: 15000, description: "Online store with products" },
-  { id: "webapp", name: "Web Application", basePrice: 25000, description: "Custom functionality" },
-  { id: "custom", name: "Custom Project", basePrice: 10000, description: "Tailored to your needs" },
+  { id: "landing", name: "Landing Page", basePrice: 15000, description: "Single page with sections" },
+  { id: "portfolio", name: "Portfolio Website", basePrice: 25000, description: "Professional showcase" },
+  { id: "business", name: "Business Website", basePrice: 35000, description: "5-10 pages with features" },
+  { id: "ecommerce", name: "E-commerce Store", basePrice: 65000, description: "Full online store" },
+  { id: "webapp", name: "Web Application", basePrice: 120000, description: "Custom SaaS/Dashboard" },
+  { id: "custom", name: "Custom Project", basePrice: 50000, description: "Tailored to your needs" },
 ];
 
 const features = [
