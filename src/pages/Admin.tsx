@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Lock, Loader2, Mail, Calendar, Calculator, Users, BarChart3, FileText, Briefcase, MessageSquare, Eye, EyeOff, KeyRound, Receipt } from "lucide-react";
+import { ArrowLeft, Lock, Loader2, Mail, Calendar, Calculator, Users, BarChart3, FileText, Briefcase, MessageSquare, Eye, EyeOff, KeyRound, Receipt, FolderKanban } from "lucide-react";
 import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -19,6 +19,7 @@ import BlogEditor from "@/components/admin/BlogEditor";
 import ClientProjectsManager from "@/components/admin/ClientProjectsManager";
 import TestimonialsManager from "@/components/admin/TestimonialsManager";
 import InvoiceManager from "@/components/admin/InvoiceManager";
+import PortfolioShowcaseManager from "@/components/admin/PortfolioShowcaseManager";
 
 // Validation schemas
 const emailSchema = z.string().email("Please enter a valid email address");
@@ -414,10 +415,14 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="analytics" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-9 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10 lg:w-auto lg:inline-grid">
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="portfolio" className="gap-2">
+              <FolderKanban className="w-4 h-4" />
+              <span className="hidden sm:inline">Portfolio</span>
             </TabsTrigger>
             <TabsTrigger value="contacts" className="gap-2">
               <Mail className="w-4 h-4" />
@@ -455,6 +460,9 @@ const Admin = () => {
 
           <TabsContent value="analytics">
             <AdminAnalytics />
+          </TabsContent>
+          <TabsContent value="portfolio">
+            <PortfolioShowcaseManager />
           </TabsContent>
           <TabsContent value="contacts">
             <ContactSubmissions />
