@@ -338,6 +338,84 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_projects: {
+        Row: {
+          category: string
+          client_name: string | null
+          created_at: string
+          description: string | null
+          end_date: string | null
+          github_url: string | null
+          id: string
+          image_url: string | null
+          is_featured: boolean | null
+          is_published: boolean | null
+          live_url: string | null
+          loss: number | null
+          priority: string | null
+          profit: number | null
+          revenue: number | null
+          short_description: string | null
+          start_date: string | null
+          status: string
+          tags: string[] | null
+          tech_stack: string[] | null
+          title: string
+          updated_at: string
+          views_count: number | null
+        }
+        Insert: {
+          category?: string
+          client_name?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          github_url?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          live_url?: string | null
+          loss?: number | null
+          priority?: string | null
+          profit?: number | null
+          revenue?: number | null
+          short_description?: string | null
+          start_date?: string | null
+          status?: string
+          tags?: string[] | null
+          tech_stack?: string[] | null
+          title: string
+          updated_at?: string
+          views_count?: number | null
+        }
+        Update: {
+          category?: string
+          client_name?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          github_url?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          live_url?: string | null
+          loss?: number | null
+          priority?: string | null
+          profit?: number | null
+          revenue?: number | null
+          short_description?: string | null
+          start_date?: string | null
+          status?: string
+          tags?: string[] | null
+          tech_stack?: string[] | null
+          title?: string
+          updated_at?: string
+          views_count?: number | null
+        }
+        Relationships: []
+      }
       project_activities: {
         Row: {
           activity_type: string
