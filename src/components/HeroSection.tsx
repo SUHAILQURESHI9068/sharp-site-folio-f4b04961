@@ -29,7 +29,7 @@ const HeroSection = () => {
               transition={{ duration: 0.6 }}
             >
               <span className="inline-block px-3 md:px-4 py-1.5 md:py-2 mb-4 md:mb-6 text-xs md:text-sm font-medium text-primary bg-primary/10 rounded-full border border-primary/20">
-                👋 Welcome to my Portfolio
+                🚀 AI-Native Web Expert
               </span>
             </motion.div>
 
@@ -40,19 +40,17 @@ const HeroSection = () => {
               className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 leading-tight"
             >
               I Build{" "}
-              <span className="gradient-text">Modern, Fast</span>
+              <span className="gradient-text">High-Converting</span>
               <br />
               <TypeAnimation
                 sequence={[
-                  "& High-Converting Websites",
+                  "Web Apps & Digital Experiences",
                   2000,
-                  "& E-commerce Stores",
+                  "in Days, Not Weeks.",
                   2000,
-                  "& Landing Pages",
+                  "with AI-Powered Speed",
                   2000,
-                  "& Web Applications",
-                  2000,
-                  "& Digital Experiences",
+                  "Custom Supabase Solutions",
                   2000,
                 ]}
                 wrapper="span"
@@ -68,8 +66,7 @@ const HeroSection = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-base md:text-lg lg:text-xl text-muted-foreground mb-6 md:mb-10 max-w-xl mx-auto lg:mx-0"
             >
-              Transforming your ideas into stunning digital experiences. I create 
-              beautiful, responsive websites that drive results and elevate your brand.
+              Helping businesses scale with AI-powered, lightning-fast websites and custom Supabase integrations. Production-ready results delivered at 10x speed.
             </motion.p>
 
             <motion.div
