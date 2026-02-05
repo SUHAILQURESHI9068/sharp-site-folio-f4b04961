@@ -8,12 +8,16 @@ import {
 
 const faqs = [
   {
-    question: "How long does it take to build a website?",
-    answer: "Depending on the complexity, a basic website takes 5-7 days, while more complex projects can take 2-4 weeks. I'll provide a detailed timeline after understanding your requirements.",
+    question: "Do I get an Admin Panel?",
+    answer: "Yes! Growth and Enterprise plans include a custom-configured dashboard or CMS, allowing you to manage your content without touching a single line of code. You can update text, images, and even add new blog posts easily.",
   },
   {
-    question: "How many revisions are included?",
-    answer: "The number of revisions depends on the package you choose. Basic includes 3 revisions, Standard includes 5, and Premium offers unlimited revisions until you're completely satisfied.",
+    question: "How long does it take to build a website?",
+    answer: "With AI-powered development, I deliver 10x faster than traditional agencies. Standard Business sites are ready in 5-7 days, Growth plans in 2 weeks, and Enterprise projects in 3-4 weeks depending on complexity.",
+  },
+  {
+    question: "What makes your approach different?",
+    answer: "I leverage cutting-edge AI tools like Lovable, v0.dev, and Bolt.new combined with Supabase for enterprise-grade backends. This means faster delivery, lower costs, and production-ready code from day one.",
   },
   {
     question: "Do you provide hosting services?",
@@ -21,15 +25,15 @@ const faqs = [
   },
   {
     question: "What about website maintenance?",
-    answer: "Yes! I offer ongoing maintenance packages to keep your website updated, secure, and running smoothly. This includes regular updates, backups, and technical support.",
+    answer: "Yes! All plans include post-launch support. Growth and Enterprise plans include extended maintenance periods to keep your website updated, secure, and running smoothly.",
   },
   {
-    question: "Can you redesign my existing website?",
-    answer: "Absolutely! I specialize in website redesigns. I'll analyze your current site, understand your goals, and create a fresh, modern design that improves user experience and conversions.",
+    question: "Can you integrate payment gateways?",
+    answer: "Absolutely! Enterprise plans include full payment gateway integration (Razorpay, Stripe, PayPal). I handle the complete setup including webhooks, order management, and secure checkout flows.",
   },
   {
     question: "What payment methods do you accept?",
-    answer: "I accept various payment methods including bank transfers, PayPal, and major credit cards. A 50% deposit is required to start the project, with the balance due upon completion.",
+    answer: "I accept Razorpay (UPI, cards, net banking), bank transfers, and PayPal. A 50% advance is required to start the project, with the balance due upon completion.",
   },
   {
     question: "Will my website be mobile-friendly?",
