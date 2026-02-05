@@ -77,14 +77,13 @@ const HeroSection = () => {
             >
               <Button size="lg" className="group w-full sm:w-auto" asChild>
                 <a href="#contact">
-                  Hire Me
+                  Get a Free Website Audit
                   <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </a>
               </Button>
               <Button variant="outline" size="lg" className="w-full sm:w-auto" asChild>
-                <a href="/resume.pdf" download="Morzen_Resume.pdf">
-                  <Download className="mr-2" />
-                  Download CV
+                <a href="#portfolio">
+                  View Recent Work
                 </a>
               </Button>
             </motion.div>
