@@ -415,10 +415,14 @@ const Admin = () => {
         </div>
 
         <Tabs defaultValue="analytics" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-9 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-5 lg:grid-cols-10 lg:w-auto lg:inline-grid">
             <TabsTrigger value="analytics" className="gap-2">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="portfolio" className="gap-2">
+              <FolderKanban className="w-4 h-4" />
+              <span className="hidden sm:inline">Portfolio</span>
             </TabsTrigger>
             <TabsTrigger value="contacts" className="gap-2">
               <Mail className="w-4 h-4" />
@@ -456,6 +460,9 @@ const Admin = () => {
 
           <TabsContent value="analytics">
             <AdminAnalytics />
+          </TabsContent>
+          <TabsContent value="portfolio">
+            <PortfolioShowcaseManager />
           </TabsContent>
           <TabsContent value="contacts">
             <ContactSubmissions />
