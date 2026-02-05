@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Lock, Loader2, Mail, Calendar, Calculator, Users, BarChart3, FileText, Briefcase, MessageSquare, Eye, EyeOff, KeyRound, Receipt } from "lucide-react";
+import { ArrowLeft, Lock, Loader2, Mail, Calendar, Calculator, Users, BarChart3, FileText, Briefcase, MessageSquare, Eye, EyeOff, KeyRound, Receipt, FolderKanban } from "lucide-react";
 import { toast } from "sonner";
 import { User } from "@supabase/supabase-js";
 import { z } from "zod";
@@ -19,6 +19,7 @@ import BlogEditor from "@/components/admin/BlogEditor";
 import ClientProjectsManager from "@/components/admin/ClientProjectsManager";
 import TestimonialsManager from "@/components/admin/TestimonialsManager";
 import InvoiceManager from "@/components/admin/InvoiceManager";
+import PortfolioShowcaseManager from "@/components/admin/PortfolioShowcaseManager";
 
 // Validation schemas
 const emailSchema = z.string().email("Please enter a valid email address");
